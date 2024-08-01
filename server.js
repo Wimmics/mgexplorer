@@ -141,7 +141,7 @@ app.get(prefix + '/dashboard', async function (req, res){
 app.post(prefix + '/publish', async function (req, res) {
 
     let response;
-    console.log(req.body)
+
     if (req.body.isPublished) {
         response = await data.saveQuery(req.body)
     } else response = await data.deleteQuery(req.body.id)

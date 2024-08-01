@@ -172,6 +172,13 @@ The JSON object containing the route to retrieve datafiles should look like this
 }
 ```
 
+## Disable Views
+
+MGExplorer contains 6 visualization techniques used to explore the input data and a `mge-annotation` component allowing one to include annotations in the exploration path. By default, every component is enabled. If you do no need some of them, disable them as follows:
+
+```js
+  node.disableView('<component-name>')
+```
 
 
 # Data Model
