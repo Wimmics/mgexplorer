@@ -21,12 +21,12 @@ class Data{
             let rawdata = fs.readFileSync(filepath);
             return JSON.parse(rawdata)
         }
-        return {}
+        return []
     }
 
     async writeFile(filename, json) {
         let filepath = path.join(__dirname, filename)
-        fs.writeFile(filepath, JSON.stringify(json), function (err) {
+        fs.writeFile(filepath, JSON.stringify(json, undefined, 4), function (err) {
             if (err) {
                 return { message: "Error while writing file " + filepath + " - " + err, code: 500 }
             }
@@ -35,27 +35,22 @@ class Data{
 
     async saveQuery(query) {
 
-        let json = { queries: await this.readFile('queries') }
-        json.queries.push(query);
+        let json = await this.readFile(this.filename.queries) 
+        json.push(query);
 
         await this.writeFile(this.filename.queries, json)
     
     }
 
     async deleteQuery(id) {
-        let json = {queries: await this.readFile('queries')}
+        let json = await this.readFile(this.filename.queries)
 
         // Data file does not exist => nothing to do
-        if (!json.queries.length) return;
+        if (!json.length) return;
         
-        json.queries = json.queries.filter(d => d.id !== id)
+        json = json.filter(d => d.id !== id)
         
         await this.writeFile(this.filename.queries, json)
-    }
-
-    async getQuery(id) {
-        let queries = await this.getQueries()
-        return queries.find(d => d.id === id)
     }
 
     // Custom method to load data for custom applications
@@ -125,7 +120,7 @@ class Data{
         )
 
         return { queryParams: queryParams, 
-            queries: queries.queries, 
+            queries: queries, 
             params: params,
             filenames: filenames,
             user: req.session.user || null

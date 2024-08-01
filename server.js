@@ -134,30 +134,22 @@ app.get(prefix + '/dashboard', async function (req, res){
 
 
 
-// Save a new query on disk
-app.post(prefix + '/saveQuery', async function (req, res) {
+/**
+ * This route is used by ldviz to save queries for exploration
+ * req.body: {query (Query Object)}
+ */
+app.post(prefix + '/publish', async function (req, res) {
 
-    let response = await data.saveQuery(req.body.query)
-
+    let response;
+    console.log(req.body)
+    if (req.body.isPublished) {
+        response = await data.saveQuery(req.body)
+    } else response = await data.deleteQuery(req.body.id)
+    
     if (response && response.message) {
         res.sendStatus(500)
         return;
     }
-    res.sendStatus(200);
-})
-
-/**
- * Delete an existing query
- * Find the query and DELETE it from the file of query list
- **/
-app.post(prefix + '/delete', async function (req, res) {
-    let response = await data.deleteQuery(req.body.id)
-
-    if (response && response.message) {
-        res.sendStatus(response.code)
-        return;
-    }
-
     res.sendStatus(200);
 })
 
