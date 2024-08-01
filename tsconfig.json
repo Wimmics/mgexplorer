@@ -1,0 +1,31 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowUnreachableCode": false,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "lib": [
+      "dom",
+      "es2019",
+      "ESNext.String"
+    ],
+    "target": "es2019", // Ensure the target is set to at least ES2019
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "moduleResolution": "node",
+    "module": "esnext",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "jsx": "react",
+    "jsxFactory": "h"
+  },
+  "include": [
+    "./src/mgexplorer",
+    "types/jsx.d.ts", 
+    "src/mgexplorer/assets/fontawesome"  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

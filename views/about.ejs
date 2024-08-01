@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    <%- include("partials/head") %>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MGExplorer</title>
+
+    <link rel="stylesheet" href="/mgexplorer/css/main.css" />
+    
+</head>
+
+<body >
+    <%- include("partials/header") %>
+
+    <div class="content-about ">
+
+
+        <div class="container-fluid jumbotron">
+            <div class="row">
+              <div class="col">
+                <div class="media" >
+                    <img src="/mgexplorer/images/techniques/mge_overview.png" width="100%" alt="Illustrative poster"/>
+                </div>
+              </div>
+              
+              <div class="col">
+                <h1 class="display-4">MGExplorer</h1>
+                <h3 class="display-6" >Multidimensional Graph Explorer</h3>
+
+                <p class="lead"> In an exploratory context, users often have no specific goal in mind and aren't seeking a particular outcome. However, when they discover something intriguing, it's important for them to retrace their steps and understand how they arrived at those results. Additionally, validating hypotheses may require branching out to compare data across different views. </p>
+
+                <p class="lead">MGExplorer is designed to facilitate data exploration with a flexible visualization approach. Utilizing the concept of chained views, MGExplorer allows users to visualize their analytical journey through a sequence of views. This feature supports various visualization techniques across multiple datasets, enabling users to explore different scenarios, retrace their steps, and refine their analysis as needed.</p>
+
+                <p class="lead">The chained views methodology in MGExplorer lets users seamlessly integrate multiple visualization techniques during their exploration process. It records every step of the journey, providing a detailed map of the analytical path. This not only enhances understanding but also supports comprehensive analytical provenance studies.</p>
+
+                <p class="lead">With MGExplorer, you can unlock the full potential of your data, uncover hidden insights, and navigate your exploratory path with ease.</p>
+              </div>
+            </div>
+           
+        </div>
+
+        <h1 class="p-3 mb-2 bg-info display-4">Visualization Techniques</h1>
+        <div class="container">
+            
+            
+
+            <div class="row vis-group">
+                <div class="col text-right font-weight-light">
+                    <h3 >Node-link diagram</h3>
+
+                    <p >The node-link diagram represents nodes as items and the edges between them as relationships, offering a clear overview of any network in the dataset based on criteria such as keywords or co-publications. It is the primary technique used by the application, serving as the foundation for all other visualization techniques.</p>
+
+                    <p >Users can interact with the diagram by hovering over nodes to highlight them and by right-clicking a node to generate a new visualization based on its data. For example, if nodes represent authors and edges indicate co-authored works, selecting a node will filter the data to focus on that author. The diagram also includes filters to help locate specific nodes in large networks and allows users to adjust settings like distance, gravity, and repulsion to refine the network view.</p>
+                </div>
+                <div class="col">
+                    <div class="media" >
+                        <img src="/mgexplorer/images/techniques/nodeedge.png" width="75%" alt="Node-link diagram"/>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="row vis-group">
+                <div class="col d-flex justify-content-end">
+                   
+                    <img src="/mgexplorer/images/techniques/clustervis.png" width="75%" alt="Cluster View"/>
+                  
+                </div>
+                <div class="col text-left font-weight-light">
+                    <h3 >Cluster View</h3>
+
+                    <p >The Cluster View technique visualizes clusters based on relationships among data items. It features a multi-ring layout: the innermost ring displays the data items as circles, while the outer rings represent various data attributes using rectangles. Items within the same cluster are connected by curved lines.</p>
+
+                    <p >By default, it displays four rings, but this can be adjusted to fit the number of data attributes and rings needed. Users can interact with the view by hovering over the connecting lines to highlight different clusters, making it easy to explore and understand the relationships within the dataset.</p>
+                </div>
+            </div>
+
+            <div class="row vis-group">
+                <div class="col text-right font-weight-light">
+                    <h3>Distribution View</h3>
+
+                    <p >The Bar Chart technique visualizes the distribution of data attributes' values over time or across categories. By default, the x-axis represents temporal information, while the y-axis shows the count of associated items per time period.</p>
+
+                    <p >The data is presented as either a single bar for each time period or multiple colored bars to represent different categories or attributes. This approach allows for a clear comparison of attribute values across different time periods or categories, making trends and patterns easy to identify.</p>
+                </div>
+                <div class="col">
+                    <div class="media" >
+                        <img src="/mgexplorer/images/techniques/histogram.png" width="75%" alt="Distribution view"/>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="row vis-group">
+                <div class="col d-flex justify-content-end">
+                   
+                    <img src="/mgexplorer/images/techniques/listing.png" width="75%" alt="Cluster View"/>
+                  
+                </div>
+                <div class="col text-left font-weight-light">
+                    <h3 >Listing View</h3>
+
+                    <p >The Listing View technique presents a detailed list of elements that define the relationships between two or more nodes in a graph. Each item in the list is linked to a descriptive web page within the dataset, allowing users to access additional information about each element. This view facilitates a deeper exploration of the relationships by providing direct access to further details about each listed item.</p>
+
+                </div>
+            </div>
+
+            <div class="row vis-group">
+                <div class="col text-right font-weight-light">
+                    <h3>Pairwise Relationship View</h3>
+
+                    <p >The Pairwise Relationship View technique visualizes clusters using a matrix where both rows and columns represent data items. Each cell in the matrix contains a glyph that encodes attributes describing the pairwise relationships between the items.</p>
+
+                    <p >The default glyph resembles a star plot, with multiple axes extending from a central point. Each axis represents a different data attribute and is used to encode its corresponding value.</p>
+
+                    <p>Hovering over a glyph enlarges it, allowing users to view detailed information about the data attributes. This interaction facilitates a deeper understanding and analysis of the relationships within the cluster.</p>
+                </div>
+                <div class="col">
+                    <div class="media" >
+                        <img src="/mgexplorer/images/techniques/glyphmatrix.png" width="75%" alt="Distribution view"/>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="row vis-group">
+                <div class="col d-flex justify-content-end">
+                   
+                    <img src="/mgexplorer/images/techniques/iris.png" width="75%" alt="Cluster View"/>
+                  
+                </div>
+                <div class="col text-left font-weight-light">
+                    <h3 >Egocentric View</h3>
+
+                    <p >The technique isolates a data item of interest at the center of a circular view, displaying the remaining related data items around it. Inspired by the eye's iris, which focuses on a limited field of view, this visualization technique places the selected item at the center and arranges its related items in a way that those within the central field of view appear larger than those further out.</p>
+
+                    <p >Data attributes for these relationships are represented by bars connecting the central item to each related item, with the height and color of these bars encoding different attributes. Users can shift the focus by clicking on any item, moving it to the center and updating the view to highlight new relationships.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <h1 class="p-3 mb-2 bg-info display-4">Data Import through SPARQL queries</h1>
+
+        <div class="container font-weight-light">
+            <div class="vis-group">
+            <p>The visualization tool includes a querying process that enables users to retrieve datasets from multiple SPARQL endpoints and explore them within a single dashboard. This is managed through a query panel, which lists available SPARQL endpoints and supported queries.
+                <small class="form-text text-muted" style="margin-left: 20px">Queries are created and managed through the <a href="">LDViz interface</a></small>
+            </p>
+            
+
+            <p>When a query is selected, the panel displays custom parameters to filter the data based on criteria like publication period or research institution. Users can then choose a visualization technique and click "Run" to retrieve data, apply the query, transform the data, and generate the selected visualization. The tool uses a cache to store query results temporarily, which helps reduce the frequency of data server access. Users can clear the cache to ensure that the next query retrieves updated data from the server.</p>
+
+            <h3>Types of Queries</h3>
+            <ul>
+                <li><strong>Initial Query</strong>: This starts the exploration process by allowing users to define the initial SPARQL endpoint and query. It requires predefined queries and at least one query that does not need input values, such as retrieving a co-authorship network based on an author's name.</li>
+                <li><strong>Follow-Up Query</strong>: This query integrates new data into the exploration by applying a new query to the current or a different SPARQL endpoint. It requires at least one visualization on the dashboard and a selected item from that visualization as input for the new query.</li>
+                <li><strong>Cloned Query</strong>: This allows users to create a copy of an existing query panel, including its input data and parameters. The copied panel can be modified to generate a new visualization with different data. It requires at least one follow-up query to be present on the dashboard.</li>
+            </ul>
+        </div>
+
+            <div class="row vis-group">
+                <div class="col d-flex justify-content-end">
+                   
+                    <img src="/mgexplorer/images/techniques/query_params.png" width="75%" alt="Cluster View"/>
+                  
+                </div>
+                <div class="col text-left font-weight-light">
+                    <h3 >Query Panel</h3>
+
+                    <p>The query panel provides an interface for selecting SPARQL endpoints and queries. It includes:</p>
+                    <ul>
+                        <li>A list of available SPARQL endpoints.</li>
+                        <li>Supported queries for each endpoint.</li>
+                        <li>Custom parameters to filter the data (e.g., publication period, research institution).</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <h1 class="p-3 mb-2 bg-info display-4">Related Publications</h1>
+        <div class="container-fluid font-weight-light">
+
+            <ul class="list-group">
+                <li class="list-group-item" >Aline Menin, Pierre Maillot, Catherine Faron, Olivier Corby, Carla Maria Dal Sasso Freitas, et al.. LDViz: a tool to assist the multidimensional exploration of SPARQL endpoints. WEBIST 2020/2021, LNBIP 469, In press. (<a href="https://hal.archives-ouvertes.fr/hal-03929913">hal-03929913</a>)</li>
+                <li class="list-group-item list-group-item-dark">Aline Menin, Minh Nhat Do, Carla Dal Sasso Freitas, Olivier Corby, Catherine Faron Zucker, et al.. Using Chained Views and Follow-up Queries to Assist the Visual Exploration of the Web of Big Linked Data. International Journal of Human-Computer Interaction, 2022. (<a href="https://hal.archives-ouvertes.fr/hal-03518845">hal-03518845</a>)</li>
+                <li class="list-group-item">Aline Menin, Catherine Faron Zucker, Olivier Corby, Carla Dal Sasso Freitas, Fabien Gandon, et al.. From Linked Data Querying to Visual Search: Towards a Visualization Pipeline for LOD Exploration. International Conference on Web Information Systems and Technologies (WEBIST), Oct 2021, Online Streaming, France. (<a href="https://dx.doi.org/10.5220/0010654600003058">10.5220/0010654600003058</a>). (<a href="https://hal.archives-ouvertes.fr/hal-03404572">hal-03404572</a>)</li>
+                <li class="list-group-item list-group-item-dark">Aline Menin, Ricardo Cava, Carla Dal Sasso Freitas, Olivier Corby, Marco Winckler. Towards a Visual Approach for Representing Analytical Provenance in Exploration Processes. IV 2021 - 25th International Conference Information Visualisation, Jul 2021, Melbourne / Virtual, Australia. (<a href="https://dx.doi.org/10.1109/IV53921.2021.00014">10.1109/IV53921.2021.00014</a>). (<a href="https://hal.archives-ouvertes.fr/hal-03292172">hal-03292172</a>)</li>
+                <li class="list-group-item">Maroua Tikat, Aline Menin, Michel Buffa, Marco Winckler. Engineering Annotations to Support Analytical Provenance in Visual Exploration Processes. ICWE 2022 - 22nd International Conference of Web Engineering, Jul 2022, Bari, Italy. pp.1-16, (<a href="https://dx.doi.org/10.1007/978-3-031-09917-5_14">10.1007/978-3-031-09917-5_14</a>). (<a href="https://hal.archives-ouvertes.fr/hal-03779349">hal-03779349</a>)</li>
+                <li class="list-group-item list-group-item-dark">Anne Toulet, Franck Michel, Anna Bobasheva, Aline Menin, Sébastien Dupré, et al.. ISSA: Generic Pipeline, Knowledge Model and Visualization tools to Help Scientists Search and Make Sense of a Scientific Archive. ISWC 2022 - 21st International Semantic Web Conference, Oct 2022, Hangzhou, China. (<a href="https://dx.doi.org/10.1007/978-3-031-19433-7_38">10.1007/978-3-031-19433-7_38</a>). (<a href="https://hal.archives-ouvertes.fr/hal-03807744">hal-03807744</a>)</li>
+            </ul>
+            
+        </div>
+
+        <h2 class="p-3 mb-2 mt-4 bg-info display-4">Contact</h2>
+        <div class="container-fluid font-weight-light">
+
+            <ul class="list-group">
+                <li class="list-group-item"><a href="https://amenin.gitlab.io/">Aline Menin</a>, Associate Professor at Université Côte d'Azur (E-mail: <a href="mailto:aline.menin@inria.fr"> aline.menin@inria.fr</a>)</li>
+                <li class="list-group-item"><a href="https://www.i3s.unice.fr/~winckler/">Marco Winckler</a>, Full Professor at Université Cote d'Azur (E-mail: <a href="mailto:marco.winckler@inria.fr">marco.winckler@inria.fr</a>)</li>               
+            </ul>
+
+            <p>*This work is developed by the Wimmics team at the Centre Inria, University Côte d'Azur. It results from collaborative efforts involving several researchers and students.</p>
+
+        </div>
+
+    </div>
+
+<%- include("partials/footer") %>
+    
+</body>
+
+<script>
+    window.addEventListener('load', function() {
+        document.querySelector("#home").classList.add('active')
+    })
+</script>
+
+</html>

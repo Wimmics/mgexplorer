@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <%- include("partials/head.ejs") %>
+        <title>MGExplorer</title>
+
+        <link rel="stylesheet" href="/mgexplorer/css/main.css" />
+        <link rel="stylesheet" href="/mgexplorer/assets/css/common.css" />
+
+        <link rel="stylesheet" type="text/css" href="/mgexplorer/assets/fontawesome/css/all.css">
+
+
+        <script type="module" src="/mgexplorer/build/mgexplorer.esm.js"></script>
+        <script nomodule src="/mgexplorer/build/mgexplorer.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="/mgexplorer/build/mgexplorer.css" media="all" />
+
+    </head>
+
+    <body>
+
+        <%- include("partials/header") %>
+
+        <div id='viewArea' class="dashboard"></div>
+
+        <%- include("partials/footer") %>
+    </body>
+
+
+    <script>
+        (async () => {
+            
+            document.querySelector("#explorer").classList.add('active')
+
+            let locals = <%- JSON.stringify(locals) %>;
+    
+            await customElements.whenDefined('mge-dashboard');
+            let dashboard = d3.select('#viewArea')
+                .append("mge-dashboard")
+                .attr("x", 20)
+                .attr("y", 20)
+
+            // the component is registered now, so its methods are immediately available
+            dashboard.node().componentOnReady().then(async () => { 
+                let node = dashboard.node()
+                
+                node.setAPIRoutes(locals.routes)
+
+                if (locals.app) { // static applications, such as i3s, sparks, and hceres data
+                    node.setFilenames(locals.filenames)
+                } else if (Object.keys(locals.queryParams).length) { // dynamic query, such as via ldviz
+                    let data = {
+                        query: locals.queryParams.query,
+                        endpoint: locals.queryParams.url,
+                        stylesheet: locals.queryParams.stylesheet
+                    }
+                    
+                    await node.setDataByQuery(data)
+                    node.disableInitialQueryPanel()
+                } else { // default behavior
+                    node.setQueries(locals.queries)
+                    node.setQueryParameters(locals.params)    
+                } 
+                
+                node.setDashboard()
+            })
+        })();
+    
+    </script>
+
+
+</html>
+

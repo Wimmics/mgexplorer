@@ -1,0 +1,59 @@
+{
+  "name": "mgexplorer",
+  "version": "1.0.0",
+  "description": "Multidimensional Graph Explorer",
+  "module": "dist/custom-elements/index.js",
+  "es2015": "dist/esm/index.mjs",
+  "es2017": "dist/esm/index.mjs",
+  "types": "dist/custom-elements/index.d.ts",
+  "collection": "dist/collection/collection-manifest.json",
+  "collection:main": "dist/collection/index.js",
+  "files": [
+    "dist/",
+    "loader/"
+  ],
+  "scripts": {
+    "build": "stencil build --docs",
+    "start": "stencil build --dev --watch --serve",
+    "test": "stencil test --spec --e2e",
+    "test.watch": "stencil test --spec --e2e --watchAll",
+    "generate": "stencil generate",
+    "start:ssr": "node server.js"
+  },
+  "dependencies": {
+    "@stencil/core": "2.5.2",
+    "autocompleter": "^6.1.0",
+    "circular-json": "^0.5.9",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "csvtojson": "^2.0.10",
+    "d3": "^6.0.0",
+    "d3-collection": "^1.0.7",
+    "d3-scale-chromatic": "^3.0.0",
+    "d3-simple-slider": "^1.10.4",
+    "detect-csv": "^1.1.0",
+    "ejs": "^3.1.8",
+    "express": "^4.17.1",
+    "express-back": "0.0.2",
+    "express-session": "^1.17.2",
+    "file-saver": "^2.0.5",
+    "html-to-image": "^1.7.0",
+    "is-html": "^2.0.0",
+    "model-js": "^0.2.5",
+    "morgan": "^1.10.0",
+    "stream": "^0.0.2",
+    "sweetalert2": "^11.0.18"
+  },
+  "overrides": {
+    "logform": "2.4.2"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@stencil/store": "^1.4.1",
+    "rollup-plugin-node-polyfills": "^0.2.1",
+    "typescript": "^5.5.4"
+  },
+  "exports": "./dist/esm/mgexplorer.js",
+  "unpkg": "dist/mgexplorer/mgexplorer.esm.js",
+  "main": "dist/index.cjs.js"
+}

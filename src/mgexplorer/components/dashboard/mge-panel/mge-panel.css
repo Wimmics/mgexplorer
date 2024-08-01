@@ -1,0 +1,64 @@
+:host {
+  display: block;
+}
+
+select {
+    font-family: sans-serif;
+    font-size: .8rem;
+    background: #f8f8f8;
+    width: 70%;
+    padding: 5px;
+    height: 35px;
+    border: none;   
+}
+
+input {
+    font-family: sans-serif;
+    font-size: .8rem;
+    background: #f8f8f8;
+    width: 70%;
+    padding: 5px;
+    height: 35px;
+    border: none;
+}
+
+.group{
+    display:flex; 
+    justify-content: space-between; 
+}
+
+
+
+.slider {
+    margin: 3px;
+    float: right;
+    background: #f8f8f8;
+}
+
+
+.exitButton {
+    float: right;
+    margin-right: 5%;
+    background: transparent;
+    border: transparent;
+    font-size: .8rem;
+}
+
+.exitButton:active {
+    border: none;
+    outline:none;
+}
+
+.filter-item {
+    display: flex;
+    font-size: .8rem;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+input.visibleLinesSlider {
+    margin: 3px;
+    float: right;
+    background: #f8f8f8;
+}   
