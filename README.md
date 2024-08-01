@@ -1,8 +1,34 @@
 # MGExplorer (Multidimensional Graph Explorer)
 
-MGExplorer is a visualization tool based on the concept of chained views to support the incremental exploration of large, multidimensional datasets. Further to supporting the exploration of dat through multiple perspectives delievered via several complementary techniques, it visualizes provenance information to enable users to retrace their analytical actions and to discover alternative exploratory paths without loosing information on previous analyses. 
+MGExplorer is a visualization tool that facilitates the incremental exploration of large, multidimensional datasets using a series of linked views. It offers multiple perspectives through various complementary techniques and tracks provenance information, enabling users to retrace their analytical steps and explore different paths while retaining access to previous analyses.
 
-## Setup
+# Table of Contents
+
+- [Availability](#availability)
+
+- [Usage](#usage)
+
+- [Data Model](#data-model)
+
+- [MGExplorer Components](#mgexplorer-components)
+
+- [Cite This Work](#cite-this-work)
+
+
+# Availability
+
+### npm package
+
+MGExplorer is available on npm. For more information, visit the npm package page [here](https://www.npmjs.com/package/mgexplorer).
+
+### Online demo
+
+An online demo is available [here](https://dataviz.i3s.unice.fr/mgexplorer)
+
+### License
+
+Our project is available under the Apache 2.0 license. See the [LICENSE file](LICENSE).
+
 **Developed Dependencies**
 
 |   Name   |  Version  |
@@ -38,36 +64,269 @@ MGExplorer is a visualization tool based on the concept of chained views to supp
 | stream| 0.0.2|
 | sweetalert2| 11.0.18|
 
-To use this project, clone the repository and run the following commands:
+# Usage
 
-```bash
-# Install dependencies and libraries
-npm install
-# Build application before run server side
-npm run build
-# Run application via Server side
-npm run start:ssr
+You can configure the dashboard in a way that better reflects your needs. For that, select the mge-component element and use the provided methods according to your goal, as described hereafter.
+
+```js
+  const node = document.querySelector('mge-dashboard')
 ```
 
-Obs.: part of the tool requires authentication. For that, create a file caleld `users.json` and place it inside the `data/` folder. It should contain the list of users that can access the tool. The expected format is a list of JSON objects such as :
+### From a SPARQL query
 
-`{ "id": 5, "name": "username", "email": "username@ldviz.com", "password": "password" }`
+To use MGExplorer to visualize the results of a SPARQL query, you can directly provide the query to the component as follows:
+
+```js
+  let data = {
+      query: '<sparql query>',
+      endpoint: '<sparql endpoint>',
+      stylesheet: '<sparql stylesheet>'
+  }
+  
+  await node.setDataByQuery(data)
+  node.disableInitialQueryPanel()
+```
+The query and stylesheet objects should follow the templates provided in [SPARQL query template](#sparql-query-template) and [Stylesheet](#stylesheet).
+
+### From a list of SPARQL queries
+
+You can provide a list of SPARQL queries to the dashboard, which the user can explore dynamically. For that, you must provide a list of SPARQL query objects, as follows:
+
+```js
+  node.setQueries(queries) 
+```
+
+Each query object in the array should follow the template presented in [SPARQL Query Object](#sparql-query-object).
+
+If the provided query objects contain an `id` key, you can choose to use a cache. For that, you should set up a server that contains API routes for managing the cache, with actions such as delete, write, and get.
+
+Enable the cache mechanism using the following method:
+```js
+  node.cache(true) 
+```
 
 
-## License
+### From a dataset
 
-See the [LICENSE file](LICENSE).
+Alternatively, you can provide a dataset containing the results (bindings) of a SPARQL query or a similarly formated datafile, as follows:
 
-## Cite this work
+```js
+  node.setData(data, stylesheet) 
+```
 
-Aline Menin, Catherine Faron Zucker, Olivier Corby, Carla Dal Sasso Freitas, Fabien Gandon, et al.. From Linked Data Querying to Visual Search: Towards a Visualization Pipeline for LOD Exploration. WEBIST 2021 - 17th International Conference on Web Information Systems and Technologies, Oct 2021, Online Streaming, France. [DOI](https://dx.doi.org/10.5220/0010654600003058). [hal-03404572](https://hal.archives-ouvertes.fr/hal-03404572)
+The stylesheet is not mandatory. The data should follow the template presented in [Input Dataset](#input-dataset).
 
-Aline Menin, Ricardo Cava, Carla Dal Sasso Freitas, Olivier Corby, Marco Winckler. Towards a Visual Approach for Representing Analytical Provenance in Exploration Processes. IV 2021 - 25th International Conference Information Visualisation, Jul 2021, Melbourne / Virtual, Australia. pp.21-28, [DOI](https://dx.doi.org/10.1109/IV53921.2021.00014). [hal-03292172](https://hal.archives-ouvertes.fr/hal-03292172)
 
-Aline Menin, Minh Do, Carla Dal Sasso Freitas, Olivier Corby, Catherine Faron Zucker, et al.. Using Chained Views and Follow-up Queries to Assist the Visual Exploration of the Web of Big Linked Data. International Journal of Human-Computer Interaction, Taylor & Francis, In press. [hal-03518845](https://hal.archives-ouvertes.fr/hal-03518845)
+### From a list of datasets
 
---------------------
-## MGExplorer specification
+Similarly to using a list of SPARQL queries, you can provide a list of datasets. Each element in the list represents the path to a file containing the data you want to load into the system. 
+
+**Obs.:** To use this feature, you must set up a server of your own and provide the API routes necessary to retrieve the files.
+
+```js
+  node.setFilenames(filenames) 
+```
+
+## API Routes
+
+MGExplorer is equiped to receive and treat certain API routes, such as to manage cached files and retrieve local data files. You can provide your routes through the method `setAPIRoutes(data)` as follows:
+
+```js
+  node.setAPIRoutes(data)
+```
+
+The data should follow the templates presented below.
+
+#### Cache
+
+The JSON object detailing the API routes to manage cached files must contain three keys, as follows:
+
+```js
+{ cache: { 
+      delete: { 
+        route: "<your-route>", 
+        method: 'POST',  
+        headers: {'Content-Type': 'application/json'}
+      },
+      write: { 
+        route: "<your-route>", 
+        method: 'POST',  
+        headers: {'Content-Type': 'application/json'}
+      },
+      get: { 
+        route: "<your-route>", 
+        method: 'POST',  
+        headers: {'Content-Type': 'application/json'}
+        }, 
+      }
+} 
+```
+#### Datafile Retrieval
+
+The JSON object containing the route to retrieve datafiles should look like this:
+
+```js
+{ dataset: { 
+  route: `<your-route>`, 
+  method: 'GET' } 
+}
+```
+
+
+
+# Data Model
+
+### SPARQL Query Template
+
+MGExplorer uses a SELECT query to retrieve data from a given SPARQL endpoint. The resulting data should form a network, which you can defined through certain variables, described below.
+
+- `?s` and `?o` define the nodes in the network. They can be any value from the knowlegde graph (KG), such as resource or a property.
+- `?p` defines the link between the values in `?s` and `?o`, which can contain any information from the KG, such as a resource or a property. 
+- `?label` gives a name to the link, such as through `skos:prefLabel` or `rdfs:label` properties.
+- `?type` serves to classify the links according to a particular categorical information. It is analogous to `rdfs:type` property, but it can take any form. For instance, in a network where animals are linked together through their common habitat, the `?type` variable can contain information about the habitat type (forest, savana, etc). 
+
+  **Obs.:** This variable can take up to 4 values. If more values are provided, the system automatically chooses the 3 most frequent ones, and aggregate the remaining into a variable called `Other.`
+- `?date` serves to represent the distribution of links over time. This variable is used by the `mge-barchart` component. 
+  **Obs.:** Although this variable was intended to be used to represent temporal data, it can take any categorical value instead.
+- `?url` represents a link to `?p`. It can be a resource `URI` or a custom webpage, where the user can further explore the data represented by this variable.
+
+Variables connecting the query to the stylesheet.
+- `?style1` serves to style nodes corresponding to `?s` values. This variable can have as value a key in the stylesheet, which can contain a `color` and a custom `label` to support legend creation.
+- `?style2` serves to style nodes corresponding to `?o` values. This variable can have as value a key in the stylesheet, which can contain a `color` and a custom `label` to support legend creation.
+
+Example of usage
+
+```sparql
+SELECT ?s ?p ?o ?label ?type ?date ?url where {
+  # Find in the graph the data that meet your criteria
+
+  bind ("fst" as style1)
+  bind ("snd" as style2)
+}
+```
+
+### Stylesheet
+
+Below you find the default stylesheet, you can change it according to your needs.
+
+```json
+    {"appli": {
+        "name": "<your-app-name>",
+        "debug": true
+    },
+    "node": {
+        "default": {
+            "color": "steelblue"
+        },
+        "mix": {
+            "color": "yellow"
+        },
+        "member": {
+            "color": "purple"
+        },
+        "other": {
+            "color": "green"
+        },
+        "fst": {
+            "color": "lightgreen",
+            "priority": 1,
+            "label": "Node1"
+        },
+        "snd": {
+            "color": "orange",
+            "priority": 2,
+            "label": "Node2"
+        },
+        "rst": {
+            "color": "purple",
+            "priority": 3
+        }
+    },
+    "edge": {
+        "color": "green"
+    },
+    "services": [
+        {
+            "label": "<your-service-name>",
+            "url": "<<your-service-url>?<your-query-param>=>"
+        }
+    ]
+}
+```
+
+Further to coloring the nodes, you can define external services where the user can further explore the data from the nodes. For instance, if your `?s` and `?o` represent a scientific publication and you have a custom webpage that provide more information about it, just give the service name and URL as shown in the `services` key.
+
+### Input dataset
+
+The input dataset is a JSON array containing the objects resulting from the SPARQL query. Typically it look like this:
+
+```json
+[
+    {
+        "s": {
+            "type": "literal",
+            "xml:lang": "en",
+            "value": "Robert Shaw (actor)"
+        },
+        "p": {
+            "type": "uri",
+            "value": "http://dbpedia.org/resource/The_Sting"
+        },
+        "o": {
+            "type": "literal",
+            "xml:lang": "en",
+            "value": "Robert Redford"
+        },
+        "label": {
+            "type": "literal",
+            "xml:lang": "en",
+            "value": "The Sting"
+        },
+        "date": {
+            "type": "typed-literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+            "value": "1973"
+        },
+        "type": {
+            "type": "uri",
+            "value": "http://dbpedia.org/resource/Ragtime"
+        },
+        "url": {
+            "type": "uri",
+            "value": "http://dbpedia.org/resource/The_Sting"
+        }
+    }, 
+    ...
+]
+
+```
+
+You can create your own data without using SPARQL queries, as long as the input dataset contains the structure above. Each variable object should contain at least the `value` key.
+
+### SPARQL Query Object
+
+When providing a list of SPARQL query objects, each object should contain the following information:
+
+```json
+[
+    {
+        "id": "<unique-id-for-cache>",
+        "query": "<your query>",
+        "endpoint": "<endpoint>",
+        "stylesheet": "<stylesheet>"
+    },
+    ...
+]
+```
+
+**Obs.:** This queries can be generated using the [LDViz](https://dataviz.i3s.unice.fr/ldviz) tool. 
+
+
+
+
+
+
+# MGExplorer Components
 
 **Table of contents**
 
@@ -196,7 +455,7 @@ To make it easy for the reader to understand the documentation of components ins
 ### General
 
 
-![Dashboard position](./src/assets/images/dashboard.png)
+![Dashboard position](./src/mgexplorer/assets/images/dashboard.png)
 
 Dashboard stores and manages multiple views during the user exploratory proces. Historical data of the discovery process will be saved in this component. In addition, showing the relationship between the views together as well as the display/hide operations on the views will be performed on the dashboard component.
 
@@ -299,7 +558,6 @@ To create a dashboard element
 
 
   - `refreshSvg() => Promise<void>`
-
 
     **Description**
 
@@ -676,13 +934,13 @@ With mge-query, we have 3 types of this component:
 - First type is initial query: This type usually uses in the beginning when we create a dashboard with a initial component. This type doesn't need a visualization technique in display.
 
 <!-- ![Initial query component](./src/assets/images/initialquery.png) -->
-<img src="./src/assets/images/initialquery.png" width="70%">
+<img src="./src/mgexplorer/assets/images/initialquery.png" width="70%">
 
 
 
 - Second type is follow-up query:
 
-  ![Follow-up query component](./src/assets/images/mge-query.png)
+  ![Follow-up query component](./src/mgexplorer/assets/images/mge-query.png)
 
 
   Requirements for create a follow-up query:
@@ -723,71 +981,6 @@ With mge-query, we have 3 types of this component:
 | `query`        | `query`         | represents the current selected query             | `any`                                         | `undefined`                            |
 | `width`        | `width`         |   represents the width of a Follow-up query component chart                                                | `number`                                      | `350`                                  |
 
-
-
-### Data model
-
-
-To create a `mge-query`, we need to provide a data model to this component. This data model will use to provide data of list pre-diefine query, available values of custom variables, available values of endpoint.
-
-
-
-```json
-{
-  "type": "object",
-  "required": [],
-  "properties": {
-    "query": {
-      "type": "string"
-    },
-    "name": {
-      "type": "string"
-    },
-    "uri": {
-      "type": "string"
-    },
-    "params": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "type": {
-          "type": "string"
-        },
-        "prefixes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "period": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
-        },
-        "lab": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "country": {
-          "type": "string"
-        }
-      }
-    },
-    "isLocked": {
-      "type": "boolean"
-    },
-    "id": {
-      "type": "number"
-    },
-    "dataset": {
-      "type": "string"
-    }
-  }
-}
-```
 
 ### Methods
 
@@ -1086,7 +1279,7 @@ To create a `mge-query`, we need to provide a data model to this component. This
 
 
 <!-- ![Settings panel component](./src/assets/images/panel.png){ :width=60% } -->
-<img src="./src/assets/images/panel.png" width="60%">
+<img src="./src/mgexplorer/assets/images/panel.png" width="60%">
 
 
 This is an example to create a settings panel element:
@@ -1273,7 +1466,7 @@ class="hydrated" style="display: block;">
 Each view is a self-contained element, which includes a visualization technique and supports subsetting operations to allow further exploration of subsets of data through different views. The views can be dragged, allowing the user to rearrange the visualization space in meaningful ways to the ongoing analysis. They are connected via line segments, which reveal their dependencies and enable tracing back the exploration path, thus preserving provenance information.
 
 <!-- ![View component](./src/assets/images/view.png){ :height=60% } -->
-<img src="./src/assets/images/view.png" width="60%">
+<img src="./src/mgexplorer/assets/images/view.png" width="60%">
 
 This is an example to create a view element:
 
@@ -1587,7 +1780,7 @@ title="Collaboration network of researchers within a particular institution (HAL
 History panel displays the exploration path in a hierarchical format to indicate the dependencies between views and supports quick recovery of the multiple analytical paths that emerge from a particular view
 
 <!-- ![History panel component](./src/assets/images/history.png){ :width=60% } -->
-<img src="./src/assets/images/history.png" width="60%">
+<img src="./src/mgexplorer/assets/images/history.png" width="60%">
 
 
 
@@ -1870,7 +2063,7 @@ Every visualization technique components will have a set of common methods. This
 
 
 <!-- ![Histogram chart component](./src/assets/images/histogram.png){ :width=70% } -->
-<img src="./src/assets/images/histogram.png" width="70%">
+<img src="./src/mgexplorer/assets/images/histogram.png" width="70%">
 
 
 The Bar Chart technique shows the distribution of data attributes’ value for an item or set of items. In our case study, the x-axis encodes temporal information, while the y-axis encodes the counting of co-publications. The data is displayed as a single bar per time period or multiple colored bars to represent categorical information of attributes
@@ -2224,7 +2417,7 @@ To create a clusterVis chart element
 ```
 
 <!-- ![ClusterVis chart component](./src/assets/images/clustervis.png){ :width=70% } -->
-<img src="./src/assets/images/cluster.png" width="60%">
+<img src="./src/mgexplorer/assets/images/cluster.png" width="60%">
 
 
 #### Properties
@@ -2623,7 +2816,7 @@ To create a Glyph matrix chart element
 ```
 
 <!-- ![Glyph matrix chart component](./src/assets/images/matrix.png){ :width=70% } -->
-<img src="./src/assets/images/matrix.png" width="60%">
+<img src="./src/mgexplorer/assets/images/matrix.png" width="60%">
 
 
 #### Properties
@@ -3027,7 +3220,7 @@ To create a Iris chart element
 ```
 
 <!-- ![Iris chart component](./src/assets/images/iris.png){ :width=70% } -->
-<img src="./src/assets/images/iris.png" width="60%">
+<img src="./src/mgexplorer/assets/images/iris.png" width="60%">
 
 
 #### Properties
@@ -3439,7 +3632,7 @@ To create a listing papers chart element
 ```
 
 <!-- ![Listing papers chart component](./src/assets/images/listing.png){ :width=60% } -->
-<img src="./src/assets/images/listing.png" width="60%">
+<img src="./src/mgexplorer/assets/images/listing.png" width="60%">
 
 
 #### Properties
@@ -3534,7 +3727,7 @@ To create a node-links chart element
 ```
 
 <!-- ![Node-links chart component](./src/assets/images/nodelinkse.png){ :width=60% } -->
-<img src="./src/assets/images/nodelinkse.png" width="60%">
+<img src="./src/mgexplorer/assets/images/nodelinkse.png" width="60%">
 
 #### Properties
 
@@ -3913,4 +4106,12 @@ To create a node-links chart element
 
   Type: `Promise<void>`
 
+
+# Cite this work
+
+Aline Menin, Catherine Faron Zucker, Olivier Corby, Carla Dal Sasso Freitas, Fabien Gandon, et al.. From Linked Data Querying to Visual Search: Towards a Visualization Pipeline for LOD Exploration. WEBIST 2021 - 17th International Conference on Web Information Systems and Technologies, Oct 2021, Online Streaming, France. [DOI](https://dx.doi.org/10.5220/0010654600003058). [hal-03404572](https://hal.archives-ouvertes.fr/hal-03404572)
+
+Aline Menin, Ricardo Cava, Carla Dal Sasso Freitas, Olivier Corby, Marco Winckler. Towards a Visual Approach for Representing Analytical Provenance in Exploration Processes. IV 2021 - 25th International Conference Information Visualisation, Jul 2021, Melbourne / Virtual, Australia. pp.21-28, [DOI](https://dx.doi.org/10.1109/IV53921.2021.00014). [hal-03292172](https://hal.archives-ouvertes.fr/hal-03292172)
+
+Aline Menin, Minh Do, Carla Dal Sasso Freitas, Olivier Corby, Catherine Faron Zucker, et al.. Using Chained Views and Follow-up Queries to Assist the Visual Exploration of the Web of Big Linked Data. International Journal of Human-Computer Interaction, Taylor & Francis, In press. [hal-03518845](https://hal.archives-ouvertes.fr/hal-03518845)
 
