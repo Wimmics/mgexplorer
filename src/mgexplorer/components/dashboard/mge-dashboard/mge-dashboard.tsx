@@ -199,6 +199,7 @@ export class MgeDashboard {
         this.hideLoading()
         
         if (data && data.message) {
+            alert(data.message)
             throw new Error(data.message)
         }
         
@@ -841,7 +842,8 @@ export class MgeDashboard {
                             "left": "calc(50vw - 250px)",
                             "top": "25vh",
                             "width": "500px",
-                            "text-align": 'center'
+                            "text-align": 'center',
+                            "display": "none"
                         }}>
                             <p>Please hold on while we query the SPARQL endpoint.</p>
                             <i class="fas fa-spinner fa-spin fa-2x" style={{"color": "rgb(31, 119, 180)"}}></i>

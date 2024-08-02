@@ -91,19 +91,43 @@ async function prepare(query) {
 */
 async function sendRequest(values) {
 
-    let url = values.endpoint + "?query=";
-    url = url + await prepare(values.query)
 
-    let headers = {
-        accept: "application/sparql-results+json"
-    }
+    let response, result = {}
+    if (state.routes.sparql) {
+        response = await fetch(state.routes.sparql.route, {
+                method: state.routes.sparql.method,
+                headers: state.routes.sparql.headers,
+                body: JSON.stringify(values)
+            }).then(response => response.text())
+    } else {
+        let url = values.endpoint + "?query=";
+        url = url + await prepare(values.query)
+
+        let headers = {
+            accept: "application/sparql-results+json"
+        }
         
-    let response = await fetch(url, { method: 'GET', headers: headers})
+        
+        try{
+            response = await fetch(url, { method: 'GET', headers: headers })
+                .then(async function(response){
+            
+                    if(response.status >= 200 && response.status < 300){
+                    return await response.text().then(data => {
+                        return data
+                    })}
+                    else return response
+                })
+        } catch(e) {
+            result.message = e.message
 
-    let res = await response.json()
+            return await getResult(result, values)
+        }
+    }
     
-    let result = {}
     try{
+        let res = JSON.parse(response)
+
         if (res.results) {
             if (res.results.bindings && res.results.bindings.length) {
                 const keys = res.head.vars
@@ -189,7 +213,7 @@ async function sendRequest(values) {
         } else if (detectCSV(text)) {
             result.message = 'Data format issue: CSV'
         } else {
-            result.message = 'Unknown'
+            result.message = e.message
         } 
     }
 

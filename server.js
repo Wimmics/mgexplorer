@@ -26,11 +26,13 @@ const stream = require('stream');
 const { Data } = require("./servertools/data")
 const { Cache } = require("./servertools/cache")
 const { Users } = require("./servertools/user")
-const utils = require("./servertools/utils")
+const utils = require("./servertools/utils");
+const { SPARQLRequest } = require('./servertools/sparql');
 
 const users = new Users()
 const cache = new Cache()
 const data = new Data()
+const sparql = new SPARQLRequest()
 //////////
 
 const prefix = '/mgexplorer'
@@ -126,7 +128,8 @@ app.get(prefix + '/dashboard', async function (req, res){
             delete: { route: prefix + "/cache/delete", method: 'POST',  headers: {'Content-Type': 'application/json'}},
             write: { route: prefix + "/cache/write", method: 'POST',  headers: {'Content-Type': 'application/json'}},
             get: { route: prefix + "/cache/get", method: 'POST',  headers: {'Content-Type': 'application/json'}}, 
-        } 
+        },
+        sparql: { route: prefix + "/sparql", method: "POST", headers: {'Content-Type': 'application/json'}} 
     }
 
     res.render("index", result);
@@ -233,6 +236,28 @@ app.post(prefix + '/apps/:app', async function(req, res) {
 //     utils.update_file(path,data);
 //     res.sendStatus(200);
 // })
+
+
+// SPARQL request
+app.post(prefix + '/sparql', async function (req, res) {
+    
+    let data = req.body;
+
+    let result;
+    try {
+        result = await sparql.sendRequest(data.query, data.endpoint)    
+    } catch (e) {
+        console.log('error = ', e)
+        // send error back to client
+        res.sendStatus(400)
+    }
+
+    // send result back to client
+    if (result.status) res.sendStatus(result.status)
+    else res.send(result);
+})
+
+
 
 
 

@@ -129,17 +129,26 @@ Similarly to using a list of SPARQL queries, you can provide a list of datasets.
 
 ## API Routes
 
-MGExplorer is equiped to receive and treat certain API routes, such as to manage cached files and retrieve local data files. You can provide your routes through the method `setAPIRoutes(data)` as follows:
+MGExplorer is equipped to handle specific API routes, such as managing cached files and retrieving local data files. You can set up these routes using the `setAPIRoutes(data)` method as follows:
 
 ```js
   node.setAPIRoutes(data)
 ```
 
-The data should follow the templates presented below.
+The method accepts a JSON object with the following structure:
+
+```js
+{ 
+  cache: { ... },
+  sparql: { ... }, 
+  dataset: { ... } 
+} 
+```
+Provide the data for the routes you wish to use, as described below.
 
 #### Cache
 
-The JSON object detailing the API routes to manage cached files must contain three keys, as follows:
+The JSON object specifying the API routes for managing cached files must include the following three keys:
 
 ```js
 { cache: { 
@@ -158,23 +167,47 @@ The JSON object detailing the API routes to manage cached files must contain thr
         method: 'POST',  
         headers: {'Content-Type': 'application/json'}
         }, 
-      }
+      },
+      sparql: { ... } // optional,
+      dataset: { ... } // optional
 } 
 ```
-#### Datafile Retrieval
 
-The JSON object containing the route to retrieve datafiles should look like this:
+#### SPARQL Request
+
+By default, MGExplorer retrieves data from the provided SPARQL endpoint on the client side using the fetch API. To handle SPARQL requests through a custom route in your application’s API, specify the API route as follows:
 
 ```js
-{ dataset: { 
-  route: `<your-route>`, 
-  method: 'GET' } 
+{ 
+  sparql: { 
+        route: "<your-route>", 
+        method: 'POST',  
+        headers: {'Content-Type': 'application/json'}
+      },
+  cache: { ... } // optional,
+  dataset: { ... } // optional
+}
+```
+
+
+#### Datafile Retrieval
+
+The JSON object specifying the route for retrieving data files should be structured as follows:
+
+```js
+{ 
+  dataset: { 
+      route: `<your-route>`, 
+      method: 'GET' 
+    },
+  cache: { ... } // optional,
+  sparql: { ... } // optional 
 }
 ```
 
 ## Disable Views
 
-MGExplorer contains 6 visualization techniques used to explore the input data and a `mge-annotation` component allowing one to include annotations in the exploration path. By default, every component is enabled. If you do no need some of them, disable them as follows:
+MGExplorer includes six visualization techniques for exploring input data, as well as a `mge-annotation` component for adding annotations to the exploration path. By default, all components are enabled. To disable any of them, use the `disableView` method as follows:
 
 ```js
   node.disableView('<component-name>')

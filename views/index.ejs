@@ -63,7 +63,11 @@
                     node.setQueryParameters(locals.params)    
                 } 
                 
-                node.setDashboard()
+                try {
+                    node.setDashboard()
+                } catch(e) {
+                    alert(e)
+                }
             })
         })();
     
