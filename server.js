@@ -261,8 +261,8 @@ app.post(prefix + '/sparql', async function (req, res) {
 
 
 
-const port = 8030 // verify the availability of this port on the server
-const portHTTPS = 8033
+const port = 8035 // verify the availability of this port on the server
+const portHTTPS = 8036
 
 app.listen(port, async () => { console.log(`HTTP Server started at port ${port}.`) })
 
