@@ -497,6 +497,7 @@ export class MgeQuery {
     select(this.element.querySelector("#run")).on("click", async () => {
       this.disableButton();
       this.showLoading();
+
       if (this.isInitial){
           let chartElements = this._dashboard.shadowRoot.querySelectorAll("[id-view^='chart']")
           if (chartElements.length > 2) {
@@ -512,6 +513,7 @@ export class MgeQuery {
       if (state._static) {
         state._data[state.getDataKey()] =  await requestFile(this.query)
       } else {
+        
         state._queries[state.getDataKey()] = this.query
       
         state._data[state.getDataKey()] = await processQuery(this.query, this.form) // execute the query and transform the results into the MGE format
@@ -525,17 +527,18 @@ export class MgeQuery {
     let key = state.getDataKey()
     let data = state._data[key]
    
+    this.enableButton()
     this.hideLoading()
 
     if (data && data.message) { 
       alert(data.response || data.message)
+      return
     }
     
-    // to-do: change the datasetName in the view
     await this._view.setDatasetName(key)
     await this._view._showChart(data, this.element.id, 'mge-nodelink', false, null, false, false)
 
-    this.enableButton()
+   
     if (!this.isInitial)
         this.blockContent()
    

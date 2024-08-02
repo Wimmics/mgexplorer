@@ -54,7 +54,7 @@ async function processQuery(query, form) {
         let response = await fetch(routedata.route, { 
             method: routedata.method, 
             headers: routedata.headers, 
-            body: JSON.stringify(query) 
+            body: JSON.stringify(data) 
         })
 
         if(response.status >= 200 && response.status < 300) {
@@ -69,7 +69,7 @@ async function processQuery(query, form) {
         await fetch(routedata.route, { 
             method: routedata.method, 
             headers: routedata.headers, 
-            body: JSON.stringify({ result: result, query: query }) 
+            body: JSON.stringify({ result: result, query: data }) 
         })    
     }
 
