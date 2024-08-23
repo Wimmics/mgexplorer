@@ -18,13 +18,13 @@
 | `_position`       | --                  | View current position                                                           | `{ x: number; y: number; }`          | `{ x: 0, y: 0}`             |
 | `_top`            | `_top`              | Div that represents the header part of a view                                   | `any`                                | `undefined`                 |
 | `datasetName`     | `dataset-name`      | The dataset name being used                                                     | `string`                             | `"[]"`                      |
-| `height`          | `height`            | represents the height of the view displayed by the window                       | `number`                             | `400`                       |
+| `height`          | `height`            | represents the height of the view displayed by the window                       | `number`                             | `350`                       |
 | `idDash`          | `id-dash`           | Id of dashboard which is containing this view                                   | `string`                             | `undefined`                 |
 | `idView`          | `id-view`           | represents ID of the view                                                       | `string`                             | `undefined`                 |
 | `titleView`       | `title-view`        | The title of the view                                                           | `string`                             | `"[]"`                      |
 | `typeVis`         | `type-vis`          | represents type of visualization technique displayed via content of the view    | `string`                             | `undefined`                 |
 | `viewDiv`         | `view-div`          | Div that represents the view included                                           | `any`                                | `undefined`                 |
-| `width`           | `width`             | represents the width of the view displayed by the window                        | `number`                             | `400`                       |
+| `width`           | `width`             | represents the width of the view displayed by the window                        | `number`                             | `350`                       |
 | `x`               | `x`                 | x-coordinate (The horizontal value in a pair of coordinates) of view's position | `number`                             | `0`                         |
 | `y`               | `y`                 | y-coordinate (The vertical value in a pair of coordinates) of view's position   | `number`                             | `0`                         |
 

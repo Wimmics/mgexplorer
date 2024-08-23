@@ -116,28 +116,28 @@ export class MgeQuery {
   /**
    * display the form with information regarding the selected query
    */
-  displayQuery(query) {
+  displayQuery(data) {
     const _this = this;
     
-      if (query){
+      if (data){
         this.enableButton();
-        (this.element.querySelector('#form_sparqlQuery')as HTMLInputElement).value = query.query.replace(/\\n/g, "\n").replace(/\\"/g, '\"');
-        (this.element.querySelector('#form_sparqlEndpoint')as HTMLInputElement).value = query.endpoint;
-        (this.element.querySelector('#form_query')as HTMLInputElement).value = query.id;
-        (this.element.querySelector('#select_query_type') as HTMLInputElement).value = query.params.type;
+        (this.element.querySelector('#form_sparqlQuery')as HTMLInputElement).value = data.query.replace(/\\n/g, "\n").replace(/\\"/g, '\"');
+        (this.element.querySelector('#form_sparqlEndpoint')as HTMLInputElement).value = data.endpoint;
+        (this.element.querySelector('#form_query')as HTMLInputElement).value = data.id;
+        // (this.element.querySelector('#select_query_type') as HTMLInputElement).value = data.params.type;
 
-        if (query.stylesheet) {
+        if (data.stylesheet) {
           select(this.element.querySelector('#stylesheet_form')).node().style.display = 'table-row';
-          (this.element.querySelector('#input_stylesheet') as HTMLInputElement).checked = query.stylesheetActive;
-          (this.element.querySelector('#value_stylesheet') as HTMLInputElement).value = JSON.stringify(query.stylesheet);
+          (this.element.querySelector('#input_stylesheet') as HTMLInputElement).checked = data.stylesheetActive;
+          (this.element.querySelector('#value_stylesheet') as HTMLInputElement).value = JSON.stringify(data.stylesheet);
         }
 
-        let params = query.params;
-        if (params.period && (query.query.includes('$beginYear') || query.query.includes('$endYear'))) {
+        let params = data.params;
+        if (params.period && (data.query.includes('$beginYear') || data.query.includes('$endYear'))) {
           select(this.element.querySelector('#period_form')).node().style.display = 'table-row';
-          if (query.query.includes('$beginYear')) 
+          if (data.query.includes('$beginYear')) 
             (this.element.querySelector('#select_from_year') as HTMLInputElement).value = params.period[0];
-          if (query.query.includes('$endYear'))
+          if (data.query.includes('$endYear'))
             (this.element.querySelector('#select_to_year') as HTMLInputElement).value = params.period[1];
         }
         else
@@ -145,19 +145,19 @@ export class MgeQuery {
           select(this.element.querySelector('#period_form')).node().style.display = 'none';
         }
 
-        if (params.lab && params.lab[0] && params.lab[0] !== '' && query.query.includes('$lab1')) {
+        if (params.lab && params.lab[0] && params.lab[0] !== '' && data.query.includes('$lab1')) {
           select(this.element.querySelector('#lab1_form')).node().style.display = 'table-row';
           (this.element.querySelector('#input_lab1') as HTMLInputElement).value = params.lab[0]
         }
         else select(this.element.querySelector('#lab1_form')).node().style.display = 'none';
 
-        if (params.lab && params.lab[1] && params.lab[1] !== '' && query.query.includes('$lab2')) {
+        if (params.lab && params.lab[1] && params.lab[1] !== '' && data.query.includes('$lab2')) {
           select(this.element.querySelector('#lab2_form')).node().style.display = 'table-row';
           (this.element.querySelector('#input_lab2') as HTMLInputElement).value = params.lab[1]
         }
         else select(this.element.querySelector('#lab2_form')).node().style.display = 'none';
 
-        if (params.country && params.country !== '' && query.query.includes('$country')) {
+        if (params.country && params.country !== '' && data.query.includes('$country')) {
           select(this.element.querySelector('#country_form')).node().style.display = 'table-row';
           (this.element.querySelector('#input_country') as HTMLInputElement).value = params.country;
         }
@@ -166,36 +166,40 @@ export class MgeQuery {
           select(this.element.querySelector('#country_form')).node().style.display = 'none';
         }
 
-        if (params.value && params.value.length && query.query.includes('$value')) {
+        if (params.value && params.value.length && data.query.includes('$value')) {
+          select(this.element.querySelector('#values-container')).node().style.display = 'table-row'
+
+          // let requiredValues = data.query.match(/\$value/g)
+          // for (let i = 0; i < requiredValues.length; i++) {
+          //     this.addCustomValue(params.value[i])
+          // }
           
-          select(this.element.querySelector('#custom_value')).node().style.display = 'table-row'
+          // // let data = ["Select a value"].concat(params.value)
 
-          let data = ["Select a value"].concat(params.value)
-
-          let selectElement = select(this.element.querySelector("#select_value"))
+          // let selectElement = select(this.element.querySelector("#select_value"))
             
-          selectElement.selectAll('option')
-            .data(data)
-            .enter()
-              .append('option')
-              .attr('value', d => d)
-              .text(d => d)
-              .property('disabled', (_,i) => i === 0)
-              .property('selected', (_,i) => i === 0)
+          // // selectElement.selectAll('option')
+          // //   .data(data)
+          // //   .enter()
+          // //     .append('option')
+          // //     .attr('value', d => d)
+          // //     .text(d => d)
+          // //     .property('disabled', (_,i) => i === 0)
+          // //     .property('selected', (_,i) => i === 0)
               
-          selectElement.on('change', function() { 
-            _this.addCustomValue(this.value)
-            selectElement.selectAll('option').property('selected', (_,i) => i === 0)
-          })
+          // selectElement.on('keydown', function(e) { 
+          //   if (e.key === 'Enter' || e.keyCode === 13) {
+          //     _this.addCustomValue(this.value)
+          //   }
+          // })
 
         } else {
-          select(this.element.querySelector('#custom_value')).style.display = 'none'
+          select(this.element.querySelector('#values-container')).style.display = 'none'
         }
 
       } else {
           this.disableButton()
-          select(this.element.querySelector('#type_form')).node().style.display = 'none';                                                                                                                                                  
-          select(this.element.querySelector('#custom_value')).node().style.display = 'none' 
+          select(this.element.querySelector('#values-container')).node().style.display = 'none' 
           select(this.element.querySelector('#period_form')).node().style.display = 'none';
           select(this.element.querySelector('#lab1_form')).node().style.display = 'none';
           select(this.element.querySelector('#lab2_form')).node().style.display = 'none';
@@ -205,7 +209,7 @@ export class MgeQuery {
     }
 
     addCustomValue(value) {
-      let container = this.element.querySelector("#selectedValues")
+      let container = this.element.querySelector('#custom_value')
 
       select(container).node().style.display = 'flex'
 
@@ -229,22 +233,27 @@ export class MgeQuery {
    */
   changeEndpoint(event, value) {
 
-      
-      select(this.element.querySelector('#form_query'))
-        .property('disabled', false)
+
+
+      let querySelector = select(this.element.querySelector("#form_query"))
+
+      querySelector.property('disabled', false)
         .selectAll('option').remove()
 
-      select(this.element.querySelector('#form_query'))
-        .selectAll('option')
-        .data(state.queriesList.filter(d => d.endpoint == value))
+      let queries = state.queriesList.filter(d => d.endpoint === value)
+      queries.sort( (a,b) => a.name.localeCompare(b.name))
+
+      console.log("queries = ", queries)
+
+      querySelector.selectAll('option')
+        .data(queries)
         .enter()
             .append('option')
             .attr('value', d => d.id)
-            .text((d, i) => { return 'Query ' + (i+1) + '. ' + d.name})
+            .text((d, i) => { return d.name} )
 
       if (!this.cloneStatus.isFirstTime){
-        select(this.element.querySelector('#form_query'))
-          .append('option')
+        querySelector.append('option')
           .attr('value', "")
           .attr("disabled", true)
           .attr("hidden", true)
@@ -352,7 +361,7 @@ export class MgeQuery {
   initEndpointsList(){
     if (!state.queriesList) return;
 
-    let endpoints = state.queriesList.map(d => d.endpoint) // TODO: load endpoints from server
+    let endpoints = state.queriesList.map(d => d.endpoint) 
     endpoints = endpoints.filter((d,i) => endpoints.indexOf(d) === i)
 
     select(this.element.querySelector('#list_endpoints'))
@@ -568,11 +577,11 @@ export class MgeQuery {
     return (
       <Host>
         <div class="query">
-        <form name='query_form' id='query_form' class="content">
+        <form name='query_form' id='query_form' class="content" style={{width: this.width + 'px'}}>
             <section id='query_parameters'>
             <table class="form_section table" id='query-head'>
-                <tr id="sparql_endpoint" >
-                    <td >SPARQL Endpoint * </td>
+                <tr id="sparql_endpoint"  >
+                    <td style={{width: "25%"}}>SPARQL Endpoint</td>
                     <td>
                         <input class="table_cell" id="form_sparqlEndpoint" list="list_endpoints" name="query_endpoint" style={{width: this.width * 0.65 + "px", "margin-left": "5px"}} placeholder="Select a SPARQL Endpoint"></input>
                         <datalist id="list_endpoints"></datalist> 
@@ -580,7 +589,7 @@ export class MgeQuery {
                     </td>
                 </tr>
                 <tr id="sparql_query">
-                    <td > Query * </td>
+                    <td style={{width: "25%"}}>Query</td>
                     <td >
                         <select class="table_cell" id="form_query" name="query_list" disabled 
                           style={{width: this.width * 0.65 + "px"}} 
@@ -589,65 +598,77 @@ export class MgeQuery {
                 </tr>
 
                 <tr id="filename" style={{display: "none"}}>
-                    <td > Dataset * </td>
+                    <td style={{width: "25%"}}>Dataset</td>
                     <td >
-                        <input class="table_cell" id="form_datasets" list="list_datasets" name="datasets" style={{width: this.width * 0.65 + "px", "margin-left": "5px"}} placeholder="Select a Dataset"></input>
+                        <input class="table_cell" id="form_datasets" list="list_datasets" name="datasets" 
+                        style={{width: this.width * 0.65 + "px", "margin-left": "5px"}} placeholder="Select a Dataset"></input>
                         <datalist id="list_datasets"></datalist> 
                     </td>
+                    
+                </tr>
+                <hr style={{width: this.width * .9 + "px"}}></hr>
+
+                
+
+                <div id='period_form' style={{"display":"none"}}>
+                    <tr><td colSpan={4}>Time Period</td></tr>
+                    <tr>
+                      <td>From</td>
+                      <td><select id='select_from_year' class="time-select" name='from_year'></select></td>
+                    
+                      <td>To</td>
+                      <td><select id='select_to_year' class="time-select" name='to_year'></select></td>
+                    </tr>
+                    <hr style={{width: this.width * .9 + "px"}}></hr>
+                </div>
+                
+
+                <tr id='lab1_form' style={{"display":"none"}}>
+                    <td style={{width: "25%"}} id='lab1_title'>Institutions</td><td>
+                        <select id='input_lab1' name='query_lab1' style={{width: this.width * 0.65 + "px"}}/>
+                        <datalist id='select_laboratory1'></datalist>
+                    </td>
+                </tr>
+                <tr id='lab2_form' style={{"display":"none"}}>
+                    <td style={{width: "25%"}}></td>
+                    <td>
+                        <select id='input_lab2' name='query_lab2' style={{width: this.width * 0.65 + "px"}}/>
+                        <datalist id='select_laboratory2'></datalist>
+                    </td>
+                    <hr style={{width: this.width * .9 + "px"}}></hr>
+                </tr>
+                
+
+                <tr id='country_form' style={{"display":"none"}}>
+                    <td style={{width: "25%"}}>Country </td><td>
+                        <select id='input_country' name='query_country' style={{width: this.width * 0.65 + "px"}}/>
+                    </td>
+                    <hr style={{width: this.width * .9 + "px"}}></hr>
                 </tr>
 
-                <tr id='custom_value' style={{display: "none"}}>
-                    <td>Values</td>
-                    <select id='select_value' name="custom_value" ></select>
-                    {/* <input id='input_value1' name='custom_value1' style={{width: this.width * 0.65 + "px", left: "6px"}}></input> */}
-                </tr>
+                
+
+                <div id="values-container" style={{display: "none"}}>
+                  <tr>Values</tr>
+                  <tr>
+                     
+                      <input id='select_value' name='custom_value' style={{width: this.width * .9 + "px"}}></input>
+                     
+                  </tr>
+                </div>
+
+                
 
                 <tr id='selectedValues' style={{display: "none"}}>
                     {/* <td>Concept 2</td>
                     <input id='input_value2' name='custom_value2' style={{width: this.width * 0.65 + "px", left: "6px"}}></input> */}
                 </tr>
 
-                <tr id="type_form" style={{display:"none"}}>
-                    <td>Query Type</td><td >
-                        <input id='select_query_type' name='query_type'style={{width: "100%"}}></input>
-                    </td>
-                </tr>
-
-                <tr id='period_form' style={{"display":"none"}}>
-                    <td>Period</td>
-                    <td>From
-                        <select id='select_from_year' class="time-select" name='from_year'></select>
-                    </td>
-                    <td>To
-                        <select id='select_to_year' class="time-select" name='to_year'></select>
-                    </td>
-                </tr>
-                <tr id='lab1_form' style={{"display":"none"}}>
-                    <td id='lab1_title'>Institution</td><td>
-                        <select id='input_lab1' name='query_lab1' style={{width: this.width * 0.65 + "px"}}/>
-                        <datalist id='select_laboratory1'></datalist>
-                    </td>
-                </tr>
-                <tr id='lab2_form' style={{"display":"none"}}>
-                    <td>Institution 2 </td><td>
-                        <select id='input_lab2' name='query_lab2' style={{width: this.width * 0.65 + "px"}}/>
-                        <datalist id='select_laboratory2'></datalist>
-                    </td>
-                </tr>
-                <tr id='country_form' style={{"display":"none"}}>
-                    <td>Country </td><td>
-                        <select id='input_country' name='query_country' style={{width: this.width * 0.65 + "px"}}/>
-                    </td>
-                </tr>
-
+                
                 <tr id='stylesheet_form' style={{"display":"none"}}>
                   <td>Use Stylesheet </td>
                   <input type='checkbox' id='input_stylesheet' name='check_stylesheet'></input>
                   <textarea id='value_stylesheet' name='stylesheet_content' style={{"display":"none"}}></textarea>
-                </tr>
-
-                <tr id='prefixes' style={{"display":"none"}}>
-                    <datalist id='prefixes_list'></datalist>
                 </tr>
 
                 {/* <tr> // to-do: include it when the visual mapping is ready

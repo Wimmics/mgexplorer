@@ -15,9 +15,9 @@ export class MgeView {
 
 @Element() element: HTMLElement;
   /** represents the width of the view displayed by the window*/
-  @Prop() width: number = 400;
+  @Prop() width: number = 350;
   /** represents the height of the view displayed by the window*/
-  @Prop() height: number = 400;
+  @Prop() height: number = 350;
   /** represents type of visualization technique displayed via content of the view*/
   @Prop() typeVis: string;
    /** represents ID of the view*/
@@ -248,31 +248,38 @@ export class MgeView {
   }
 
   moveWindow (x, y) {
+    
     this.pos1 = this.pos3 - x
     this.pos2 = this.pos4 - y
     this.pos3 = x
     this.pos4 = y
-    this.cont.style.top = this.cont.offsetTop - this.pos2 + 'px' ;
-    this.cont.style.left = this.cont.offsetLeft - this.pos1 + 'px' ;
 
-    this._position.x = this.cont.offsetLeft ;
-    this._position.y = this.cont.offsetTop;
-    // this.viewDiv.setPosition(this._position.x, this._position.y)
+    const parent = select(this.element.parentNode).node().getBoundingClientRect()
+    let top = Math.max(0, this.cont.offsetTop - this.pos2)
+    top = Math.min(top, parent.height - this._dimView.height + 30)
 
-    this._center.cx = this._position.x + this._dimView.width / 2;
-    this._center.cy = this._position.y + this._dimView.height / 2;
+    let left = Math.max(0, this.cont.offsetLeft - this.pos1)
+    left = Math.min(left, parent.width - this._dimView.width)
+
+    this.cont.style.top = top + 'px'
+    this.cont.style.left = left + 'px'
+
+    this._position.x = Math.max(0, this.cont.offsetLeft)
+    this._position.y = Math.max(0, this.cont.offsetTop)
+
+    this._center.cx = this._position.x + this._dimView.width / 2
+    this._center.cy = this._position.y + this._dimView.height / 2
+
     if (!this.idView.indexOf("annotation")){
       let result =selectAll(this._dashboard.shadowRoot.querySelectorAll("." + this.idView))
-      result.attr("x", this._center.cx - 6).attr("y", this._center.cy - 6);
-      
+      result.attr("x", this._center.cx - 6).attr("y", this._center.cy - 6);  
     }
 
     if (!this.selLinkPai.empty()) {
         this.selLinkPai.attr("x2", this._center.cx).attr("y2", this._center.cy);
         this.selConect.attr("x", this._center.cx - 6).attr("y", this._center.cy - 6);
-        
-        
     }
+
     if (!this.selLinkPaiArrow.empty())
       this.selLinkPaiArrow.attr("targetX", this._center.cx).attr("targetY", this._center.cy).attr("refX", (Math.sqrt((this._center.cx - this.selLinkPaiArrow.attr("sourceX"))**2 + (this._center.cy - this.selLinkPaiArrow.attr("sourceY"))**2) / 3.5));
 
@@ -293,9 +300,10 @@ export class MgeView {
   dragMouseDown (event) {
     event = event || window.event
     event.preventDefault();
+
     this.pos3 = event.clientX
     this.pos4 = event.clientY
-    // this.dashboard.setPosition(event.clientX, event.clientY);
+    
     document.onmouseup = this.closeDragElement.bind(this);
 
     document.onmousemove = this.elementDrag.bind(this);
@@ -499,7 +507,7 @@ export class MgeView {
     
   }
 
-  async buildChart(div){
+  async buildChart(div, height){
     this._top = div.append("div")
                   .attr("class", "top")
                   .attr("id", this.idView + "-t")
@@ -510,7 +518,9 @@ export class MgeView {
     this._content = div.append("div")
                   .attr("class", "content")
                   .attr("id", this.idView + "-c")
-                  .style("width", this.width)
+                  .style("width", this.width + "px")
+                  
+    if (height) this._content.style("height", height + "px")
 
 
     this.addTopContent();
@@ -827,9 +837,11 @@ export class MgeView {
     }
 
     componentDidLoad(){
-        this.viewDiv = select(this.element.shadowRoot.querySelector("#" + this.idView + "-g"  ))
-                        .attr("width", this.width)
-                        .attr("height", this.height)
+      
+      let height = this.element.clientHeight
+      this.viewDiv = select(this.element.shadowRoot.querySelector("#" + this.idView + "-g"  ))
+                        // .attr("width", this.width)
+                        // .attr("height", this.height)
                         .style("left", this._position.x +"px")
                         .style("top", this._position.y +"px")
                         .style("position", "absolute")
@@ -837,11 +849,11 @@ export class MgeView {
                         .on("mouseover", this._onMouseOverContent.bind(this))
                         .on("mouseout", this._onMouseOutContent.bind(this));
                         
-        this.buildChart(this.viewDiv);
-        this.mover = this.element.shadowRoot.querySelector("#" + this.idView + '-t');
-        this.cont = this.element.shadowRoot.querySelector("#" + this.idView + "-g");
-        this.dragElement(this.mover);
-        this.setResizable();
+      this.buildChart(this.viewDiv, height);
+      this.mover = this.element.shadowRoot.querySelector("#" + this.idView + '-t');
+      this.cont = this.element.shadowRoot.querySelector("#" + this.idView + "-g");
+      this.dragElement(this.mover);
+      this.setResizable();
     }
 
 

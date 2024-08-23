@@ -59,8 +59,8 @@ export class MgeDashboard {
             height: 0
         };
         
-        this._dashboardArea.width = this._dashboardArea.div.node().scrollWidth;
-        this._dashboardArea.height = this._dashboardArea.div.node().scrollHeight;
+        this._dashboardArea.width = this._dashboardArea.div.node().clientWidth;
+        this._dashboardArea.height = this._dashboardArea.div.node().clientHeight;
 
         const that = this;
         this._dragConect = drag().on("drag", function (e, d) {return that._onDragConect.call(this, e, d, that)});
@@ -400,7 +400,6 @@ export class MgeDashboard {
     */
     @Method()
     async closeView(view) {
-        console.log("closeView() view = ", view)
         let that = this;
         
         if(view.typeVis == "mge-annotation"){
@@ -415,7 +414,7 @@ export class MgeDashboard {
         
         function closeNode(view, nodeTree){
             let node = nodeTree;
-            console.log("closeView() node = ", node)
+            
             if (node.isLeaf) {
                 while (node != null) {
                     
@@ -710,25 +709,31 @@ export class MgeDashboard {
     
     async draw(_svg){
         
-        
         let viewTitle = state.views[this.initComponent].title('Initial')
         
+        let graph = this.element.shadowRoot.querySelector(".graph")
+        let historyPanelPos = this.y + 400
+
+        let historyHeight = graph.clientHeight - historyPanelPos - 35 // to fit into small screens
+        if (historyHeight > 250) historyHeight = 250 // default height
+
         this._historyChart = _svg.append("mge-view")
-        .attr("x", this.x)
-        .attr("y", this.y + 400)
-        .attr("type-vis", "mge-history")
-        .attr("title-view", "History")
-        .attr("id-view", "chart-history")
+            .attr("x", this.x)
+            .attr("y", historyPanelPos)
+            .attr("type-vis", "mge-history")
+            .attr("title-view", "History")
+            .attr("id-view", "chart-history")
+            .style('height', historyHeight + "px")
         
         this._initView = _svg
-        .append("mge-view")
-        .attr("x", this.x)
-        .attr("y", this.y)
-        .attr("dataset-name", this.datasetName)
-        .attr("type-vis", this.initComponent)
-        .attr("title-view", viewTitle)
-        .attr("titleview", viewTitle)
-        .attr("id-view", "chart-0")
+            .append("mge-view")
+            .attr("x", this.x)
+            .attr("y", this.y)
+            .attr("dataset-name", this.datasetName)
+            .attr("type-vis", this.initComponent)
+            .attr("title-view", viewTitle)
+            .attr("titleview", viewTitle)
+            .attr("id-view", "chart-0")
         
         if (typeof await this._initView.node().getChart() !== "undefined"){
             let _initView = await this._initView.node().getChart()
@@ -802,7 +807,7 @@ export class MgeDashboard {
         
         componentDidLoad(){
             
-            this._dashboardArea.svg = select(this.element.shadowRoot.querySelectorAll(".linktool")[0])
+            this._dashboardArea.svg = select(this.element.shadowRoot.querySelector(".linktool"))
                 .attr("width", this._dashboardArea.width)
                 .attr("height", this._dashboardArea.height)
                 .style("top", 0)

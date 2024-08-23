@@ -16,7 +16,7 @@ export class MgeHistory {
     /** represents the width of the history panel*/
     @Prop() width: number = 350;
     /** represents the height of the history panel*/
-    @Prop() height: number = 250;
+    @Prop( {mutable: true }) height: number = 250;
 
     public model: any;
 
@@ -51,9 +51,6 @@ export class MgeHistory {
 
     @Prop() typeVis: string;
 
-    private protocol = window.location.protocol + '//';
-
-    private hostname = window.location.host;
 
     constructor() {
         this.model = Model();
@@ -75,7 +72,7 @@ export class MgeHistory {
     async addHistoryTreeChart(idDiv, divTag) {
 
         this.model.margin = { top: 4, right: 4, bottom: 4, left: 4 };
-        this.model.box = { width: this.width, height: this.height };
+        this.model.box = { width: this.width, height: this.element.clientHeight }
 
 
         let _svg = divTag.append("svg"),  // Create dimensionless svg
@@ -290,16 +287,17 @@ export class MgeHistory {
 
     }
 
-    buildChart(idDiv, svg) {
+    buildChart(idDiv, div) {
 
-        this.addHistoryTreeChart(idDiv, svg);
+        this.addHistoryTreeChart(idDiv, div);
     }
 
     componentDidLoad() {
-        let svg = select(this.element.querySelectorAll(".history-tree")[0])
+
+        let div = select(this.element.querySelectorAll(".history-tree")[0])
             .style("width", this.width + "px")
-            .style("height", this.height + "px");
-        this.buildChart("history-tree", svg);
+           
+        this.buildChart("history-tree", div);
         this.saveHistoryData();
     }
 
