@@ -87,6 +87,7 @@ export class MgeBarchart {
     /** colors for the different types*/
     @Prop({ mutable: true }) _colorsBars ;  // colors for the different types
     private _helpTooltip;
+    private xTitle; // x-axis title, which can be defined in the stylesheet. Default = empty
 
     
 
@@ -164,6 +165,8 @@ export class MgeBarchart {
         this._nbOfTypesDoc = 4     // number of types of documents in the base
         this._colorsBars = scaleOrdinal(schemeCategory10).domain([0,1,2,3])   // colors for the different types
         
+        this.xTitle = ''
+        
     }
 
 
@@ -204,16 +207,24 @@ export class MgeBarchart {
     * If no arguments, It will return the value of data
     */
     @Method()
-    async setData (_, globalData, secondNode, isFromEdge=false, isFromCluster=false, isFromHC=false) {
+    async setData (_, datasetName, secondNode, isFromEdge=false, isFromCluster=false, isFromHC=false) {
         if (!arguments.length)
             return this.model.data;
 
         if (!isFromEdge && !isFromCluster) {
-            this.model.data = this._subGraph.allPapersList(_, globalData);
+            this.model.data = this._subGraph.allPapersList(_, state._data[datasetName]);
         } else if (isFromEdge) {
-            this.model.data = this._subGraph.duoPapersList(_, secondNode, globalData);
+            this.model.data = this._subGraph.duoPapersList(_, secondNode, state._data[datasetName]);
         } else if (isFromCluster) {
-            this.model.data = this._subGraph.clusterPapersList(_, globalData);
+            this.model.data = this._subGraph.clusterPapersList(_, state._data[datasetName]);
+        }
+
+        this.model.stylesheet = state._stylesheet[datasetName]
+        if (this.model.stylesheet) {
+            let barchartStyle = this.model.stylesheet.barchart
+            if (barchartStyle && barchartStyle.x) {
+                this.xTitle = barchartStyle.x.label
+            }
         }
 
         const documents = this.model.data.root.data.documents;
@@ -314,7 +325,7 @@ export class MgeBarchart {
         this._abscissaTitle = this._grpHistogram.append("text")
             .attr("y", 1)
             .attr("dy", ".71em")
-            .text("Publication Year");
+            .text(this.xTitle);
 
 
         this._ordinateTitle = this._helpTooltip.append("svg")

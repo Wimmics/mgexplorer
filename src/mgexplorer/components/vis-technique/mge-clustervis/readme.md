@@ -204,7 +204,7 @@ Type: `Promise<any>`
 
 
 
-### `setData(_: any, globalData: any) => Promise<any>`
+### `setData(_: any, datasetName: any) => Promise<any>`
 
 This function is to set the data to the chart
 If no arguments, It will return the value of data

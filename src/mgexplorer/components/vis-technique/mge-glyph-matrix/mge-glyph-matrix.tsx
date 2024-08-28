@@ -327,7 +327,8 @@ export class MgeGlyphMatrix {
       this._appendLeftLegend(data);
       this._appendTopLegend(data);
       this._appendMatrix(data);
-      this._matrixGlyphPanel.updateGlyphMatrixPanel();
+
+      if (this._matrixGlyphPanel) this._matrixGlyphPanel.updateGlyphMatrixPanel();
     });
 
     /**
@@ -662,14 +663,14 @@ export class MgeGlyphMatrix {
     * If no arguments, It will return the value of data
     */
   @Method()    
-  async setData(_, globalData) {
+  async setData(_, datasetName) {
     var qtLabel = 0, qtValue = 0;
     if (!arguments.length)
       return this.model.data;
     if (_.cluster) {
-          _ = this._subGraph.clusterMatrixGlyph(_, globalData);
+          _ = this._subGraph.clusterMatrixGlyph(_, state._data[datasetName]);
       } else {
-          _ = this._subGraph.normalMatrixGlyph(_, globalData);
+          _ = this._subGraph.normalMatrixGlyph(_, state._data[datasetName]);
       }
     this.model.data = _
     if (this.model.data.nodes.labelTitle != null)

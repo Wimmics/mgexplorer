@@ -61,6 +61,7 @@ const { state } = createStore({
 	GLYPH_STAR:4,
 	_data: {},
 	_queries: {},
+	_stylesheet: {},
 
 	globalParams: null,
 	queriesList: null,

@@ -151,15 +151,14 @@ export class MgeView {
   }
   
   setResizable(){
-    let globalThis = this;
-    var startX, startY, startWidth, startHeight, h , w;
+    
+    var startX, startY, h , w;
     const resizers = selectAll(this.element.shadowRoot.querySelectorAll('.resizer'));
 
     // Loop over them
     [].forEach.call(resizers.nodes(), (resizer) => {
       resizer.onmousedown = initDragResize.bind(this);  
     });
-    // elm.onmousedown = initDragResize.bind(this);
     
     function initDragResize(event) {
       event = event || window.event;
@@ -183,7 +182,7 @@ export class MgeView {
     }
 
     function doDragResize(e) {
-      let aspect = this._dimView.height / this._dimView.width;
+      // let aspect = this._dimView.height / this._dimView.width;
 
       // Updates the dimensions of the <div>
       let dx = e.clientX - startX;
@@ -206,6 +205,7 @@ export class MgeView {
             dt[0].x = this._center.cx;
             dt[0].y = this._center.cy;
         }
+        
         this.selLinkFilhos.attr("x1", this._center.cx).attr("y1", this._center.cy);
         if (!this.selLinkPaiArrow.empty())
           this.selLinkPaiArrow.attr("targetX", this._center.cx).attr("targetY", this._center.cy).attr("refX", (Math.sqrt((this._center.cx - this.selLinkPaiArrow.attr("sourceX"))**2 + (this._center.cy - this.selLinkPaiArrow.attr("sourceY"))**2) / 3.5));
@@ -507,7 +507,7 @@ export class MgeView {
     
   }
 
-  async buildChart(div, height){
+  async buildChart(div){
     this._top = div.append("div")
                   .attr("class", "top")
                   .attr("id", this.idView + "-t")
@@ -518,9 +518,7 @@ export class MgeView {
     this._content = div.append("div")
                   .attr("class", "content")
                   .attr("id", this.idView + "-c")
-                  .style("width", this.width + "px")
-                  
-    if (height) this._content.style("height", height + "px")
+      
 
 
     this.addTopContent();
@@ -743,9 +741,9 @@ export class MgeView {
                 let targetNode = await parentNode.dataVisToNode(vOrder[node.indexData])
                 if (target === "IC-node") {
                     this._showChart(targetNode, parentNode.id, d.key, false, undefined)
-                } else {
+                } else { // if IC-bars
                     let sourceNode = await parentNode.getSourceObject()
-                    this._showChart(d.key === 'mge-listing' ? sourceNode : targetNode, parentNode.id, d.key, true, targetNode)
+                    this._showChart(sourceNode, parentNode.id, d.key, true, targetNode)
                 }
                 break;
             default:
@@ -785,7 +783,7 @@ export class MgeView {
 
         chartNode = await _viewChild.node().getChart()
         
-        await chartNode.setData(node, state._data[this.datasetName], secondNode, isFromEdge, isFromCluster, isFromHC)
+        await chartNode.setData(node, this.datasetName, secondNode, isFromEdge, isFromCluster, isFromHC)
 
         convertData = await chartNode.setData()
         state.savedData = convertData;
@@ -838,10 +836,7 @@ export class MgeView {
 
     componentDidLoad(){
       
-      let height = this.element.clientHeight
       this.viewDiv = select(this.element.shadowRoot.querySelector("#" + this.idView + "-g"  ))
-                        // .attr("width", this.width)
-                        // .attr("height", this.height)
                         .style("left", this._position.x +"px")
                         .style("top", this._position.y +"px")
                         .style("position", "absolute")
@@ -849,7 +844,7 @@ export class MgeView {
                         .on("mouseover", this._onMouseOverContent.bind(this))
                         .on("mouseout", this._onMouseOutContent.bind(this));
                         
-      this.buildChart(this.viewDiv, height);
+      this.buildChart(this.viewDiv);
       this.mover = this.element.shadowRoot.querySelector("#" + this.idView + '-t');
       this.cont = this.element.shadowRoot.querySelector("#" + this.idView + "-g");
       this.dragElement(this.mover);

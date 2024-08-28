@@ -112,24 +112,13 @@ app.get(prefix + '/', function (req, res) {
 // mgexplorer visualization
 app.get(prefix + '/dashboard', async function (req, res){
 
-    // TODO: uncomment for deploy with auth
-    // let connected = await users.checkConnection(req)
-    // if(connected){
-    //     let result = await data.load(req)
-    //     res.render("pages/mgexplorer/index", result);
-    // }
-    // else {
-    //     res.redirect(prefix + '/login' + utils.getQuery(req.query))
-    // }
-
     let result = await data.load(req)
     result.routes = {
         cache: { 
             delete: { route: prefix + "/cache/delete", method: 'POST',  headers: {'Content-Type': 'application/json'}},
             write: { route: prefix + "/cache/write", method: 'POST',  headers: {'Content-Type': 'application/json'}},
             get: { route: prefix + "/cache/get", method: 'POST',  headers: {'Content-Type': 'application/json'}}, 
-        },
-        sparql: { route: prefix + "/sparql", method: "POST", headers: {'Content-Type': 'application/json'}} 
+        }
     }
 
     res.render("index", result);
@@ -218,14 +207,6 @@ app.get(prefix + "/apps/:app/data/:dataset", async function(req, res) {
     stream.Readable.from(JSON.stringify(result)).pipe(res)
 })
 
-// TODO: render app from form data (to support calling the app from another page) -- if components library possible, then this won't be necessary
-app.post(prefix + '/apps/:app', async function(req, res) {
-
-    res.render('index', req.body)
-
-})
-
-
 
 //// annotation routes ////////////////////
 // TODO: check with Maroua to get the latest version of the annotations
@@ -238,24 +219,24 @@ app.post(prefix + '/apps/:app', async function(req, res) {
 // })
 
 
-// SPARQL request
-app.post(prefix + '/sparql', async function (req, res) {
+// SPARQL request : not being used anymore
+// app.post(prefix + '/sparql', async function (req, res) {
     
-    let data = req.body;
+//     let data = req.body;
 
-    let result;
-    try {
-        result = await sparql.sendRequest(data.query, data.endpoint)    
-    } catch (e) {
-        console.log('error = ', e)
-        // send error back to client
-        res.sendStatus(400)
-    }
+//     let result;
+//     try {
+//         result = await sparql.sendRequest(data.query, data.endpoint)    
+//     } catch (e) {
+//         console.log('error = ', e)
+//         // send error back to client
+//         res.sendStatus(400)
+//     }
 
-    // send result back to client
-    if (result.status) res.sendStatus(result.status)
-    else res.send(result);
-})
+//     // send result back to client
+//     if (result.status) res.sendStatus(result.status)
+//     else res.send(result);
+// })
 
 
 

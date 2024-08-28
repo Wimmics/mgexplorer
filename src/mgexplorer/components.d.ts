@@ -89,7 +89,7 @@ export namespace Components {
         /**
           * This function is to set the data to the chart If no arguments, It will return the value of data
          */
-        "setData": (_: any, globalData: any, secondNode: any, isFromEdge?: boolean, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>;
+        "setData": (_: any, datasetName: any, secondNode: any, isFromEdge?: boolean, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>;
         "setIndexAttrBar": (_: any) => Promise<any>;
         /**
           * This function is required in all techniques It is called internally in conectChart
@@ -197,7 +197,7 @@ export namespace Components {
         /**
           * This function is to set the data to the chart If no arguments, It will return the value of data
          */
-        "setData": (_: any, globalData: any) => Promise<any>;
+        "setData": (_: any, datasetName: any) => Promise<any>;
         /**
           * This function is required in all techniques It is called internally in conectChart
          */
@@ -484,7 +484,7 @@ export namespace Components {
         /**
           * This function is to set the data to the chart If no arguments, It will return the value of data
          */
-        "setData": (_: any, globalData: any) => Promise<any>;
+        "setData": (_: any, datasetName: any) => Promise<any>;
         /**
           * This function is required in all techniques It is called internally in conectChart
          */
@@ -676,7 +676,7 @@ export namespace Components {
           * Configure the data that will be printed in the centroid and the text of the bar (Label only)
          */
         "setConfigCentroid": (titulo: any, tituloGrau: any, textoBarra: any) => Promise<void>;
-        "setData": (_: any, globalData: any) => Promise<any>;
+        "setData": (_: any, datasetName: any) => Promise<any>;
         "setIndexAttrBar": (_: any) => Promise<any>;
         /**
           * This function is required in all techniques It is called internally in conectChart
@@ -746,7 +746,7 @@ export namespace Components {
         /**
           * This function is to set the data to the listing papers chart If no arguments, It will return the value of data
          */
-        "setData": (_: any, globalData: any, secondNode: any, isFromEdge?: boolean, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>;
+        "setData": (_: any, datasetName: any, secondNode: any, isFromEdge?: boolean, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>;
         /**
           * represents the width of the paper's list chart
          */
@@ -825,7 +825,7 @@ export namespace Components {
          */
         "resetHighSearch": () => Promise<void>;
         "setBox": (_: any) => Promise<any>;
-        "setData": (_: any, globalData: any) => Promise<any>;
+        "setData": (_: any, datasetName: any) => Promise<any>;
         "setLegend": (_: any) => Promise<any>;
         "setPanel": (_: any) => Promise<any>;
         /**

@@ -160,6 +160,7 @@ export class MgeNodelink {
 
     //---------------------
     this.model.when(["data", "redraw"], (data) => {
+        
         let dataLength = data.nodes.dataNodes.length;
 
         this._configLayout.gravity = 300 / ((Math.PI * this.model.widthChart * this.model.widthChart / 4) / dataLength); // no idea why 300
@@ -454,12 +455,21 @@ _closeToolTip(){
 
     //---------------------
     @Method()
-    async setData(_, globalData) {
+    async setData(_, datasetName) {
         //let qtLabel=0, qtValue=0;
         let maxQtEdges, vNodesTemp;
         if (!arguments.length)
             return this.model.data;
         this.model.data = _;
+        
+        this.model.stylesheet = state._stylesheet[datasetName]
+
+        if (this.model.stylesheet) {
+            let nodeStyle = this.model.stylesheet.node
+            if (nodeStyle && nodeStyle.radius) {
+                this._indexAttrSize = nodeStyle.radius.variable || "qtNodes"
+            }
+        }
 
         if (this.model.data.isCluster === undefined) {
             vNodesTemp = range(0,this.model.data.nodes.dataNodes.length).map(function () { return 0; });

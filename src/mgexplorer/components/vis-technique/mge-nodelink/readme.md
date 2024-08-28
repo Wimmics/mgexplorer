@@ -178,7 +178,7 @@ Type: `Promise<any>`
 
 
 
-### `setData(_: any, globalData: any) => Promise<any>`
+### `setData(_: any, datasetName: any) => Promise<any>`
 
 
 

@@ -99,20 +99,20 @@ export class MgeListing {
       * If no arguments, It will return the value of data
       */
     @Method()
-    async setData(_, globalData, secondNode, isFromEdge = false, isFromCluster = false, isFromHC = false) {
+    async setData(_, datasetName, secondNode, isFromEdge = false, isFromCluster = false, isFromHC = false) {
         if (!arguments.length)
             return this.model.data;
 
         
         if (secondNode || isFromEdge) {
-            _ = this._subGraph.duoPapersList(_, secondNode, globalData);
+            _ = this._subGraph.duoPapersList(_, secondNode, state._data[datasetName]);
         } else if (isFromCluster) {
-            _ = this._subGraph.clusterPapersList(_, globalData);
+            _ = this._subGraph.clusterPapersList(_, state._data[datasetName]);
         } else if (isFromHC) {
             _ = JSON.parse(JSON.stringify(_));
             _ = _.root.data;
         } else {
-            _ = this._subGraph.allPapersList(_, globalData);
+            _ = this._subGraph.allPapersList(_, state._data[datasetName]);
         }
         
         this.model.data = _;

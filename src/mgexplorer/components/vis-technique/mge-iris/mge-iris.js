@@ -136,10 +136,11 @@ let MgeIris = class MgeIris {
     }
     ;
     //---------------------
-    async setData(_, globalData) {
+    async setData(_, datasetName) {
         if (!arguments.length)
             return this.model.data;
-        this.model.data = normalIris(_, globalData);
+        this.model.data = normalIris(_, state._data[datasetName])
+        
         // Configure to sort node names
         this._sort.inic(this.model.data.children.labelTitle.length, this.model.data.children.valueTitle.length)
             .data(this.model.data.children.data);

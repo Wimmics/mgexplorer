@@ -501,15 +501,15 @@ let MgeGlyphMatrix = class MgeGlyphMatrix {
     /** This function is to set the data to the chart
       * If no arguments, It will return the value of data
       */
-    async setData(_, globalData) {
+    async setData(_, datasetName) {
         var qtLabel = 0, qtValue = 0;
         if (!arguments.length)
             return this.model.data;
         if (_.cluster) {
-            _ = clusterMatrixGlyph(_, globalData);
+            _ = clusterMatrixGlyph(_, state._data[datasetName]);
         }
         else {
-            _ = normalMatrixGlyph(_, globalData);
+            _ = normalMatrixGlyph(_, state._data[datasetName]);
         }
         this.model.data = _;
         if (this.model.data.nodes.labelTitle != null)

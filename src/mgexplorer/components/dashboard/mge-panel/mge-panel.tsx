@@ -57,6 +57,8 @@ export class MgePanel {
     @Method()
     async setChart(_){
         this._chart = _
+
+        this.createFilter()
     }
     
     constructor(){
@@ -71,7 +73,7 @@ export class MgePanel {
         if (this._selectOrder !== null){
             let _that = this;
             
-            this._selectOrder[0].selectedIndex = 0;
+            this._selectOrder[0].selectedIndex = 1;
             
             this._selectOrder.addEventListener('change', async function () {
                 
@@ -310,7 +312,13 @@ export class MgePanel {
     }
     
     async _addNodeSizeSelect() {
+        
         this._selectNodeSize = select(this.element.querySelector("#select-nodes-size"))
+        
+        // set the default value as selected in the select element
+        const defaultValue =  await this._chart.indexAttrSize()
+        this._selectNodeSize.selectAll('option')
+            .property('selected', function() { return this.value === defaultValue.trim() })
         
         this._selectNodeSize.on('change', async (d) => {
             this._chart.acChangeAttrSize(d.target.value);
@@ -395,41 +403,41 @@ export class MgePanel {
     createFilter(){
         switch(this.typeVis){
             case 'mge-nodelink':
-            this._spanNodes = select(this.element.querySelector(".spanNodes"))
-            this._spanEdges = select(this.element.querySelector(".spanEdges"))
-            //------------- search bar
-            this._addAutocomplete();
-            
-            //------------- Slider to modify gravity attribute
-            this._addSliderGravity();
-            
-            //------------- Slider to modify charge attribute
-            this._addSliderCharge();
-            
-            //------------- Slider to modify link distance attribute
-            this._addSliderLinkDistance();
-            
-            this._addNodeSizeSelect();
+                this._spanNodes = select(this.element.querySelector(".spanNodes"))
+                this._spanEdges = select(this.element.querySelector(".spanEdges"))
+                //------------- search bar
+                this._addAutocomplete();
+                
+                //------------- Slider to modify gravity attribute
+                this._addSliderGravity();
+                
+                //------------- Slider to modify charge attribute
+                this._addSliderCharge();
+                
+                //------------- Slider to modify link distance attribute
+                this._addSliderLinkDistance();
+                
+                this._addNodeSizeSelect();
             break;
             
             case 'mge-barchart':
             case 'mge-iris':
-            this._addItemsSelectOrderIrisBar();
+                this._addItemsSelectOrderIrisBar();
             break;
             
             case 'mge-glyph-matrix':
-            //------------- select for rows/columns text 
-            this._addSelectLegend();
-            
-            //------------- select for rows/columns "sort by" 
-            this._addSelectOrderMatrix();
-            
-            //------------- range slider for changing the number of visible rows/columns
-            this._addSliderLines();
+                //------------- select for rows/columns text 
+                this._addSelectLegend();
+                
+                //------------- select for rows/columns "sort by" 
+                this._addSelectOrderMatrix();
+                
+                //------------- range slider for changing the number of visible rows/columns
+                this._addSliderLines();
             break;
             case 'mge-clustervis':
-            //------------- select for rows/columns text 
-            this._addSelectOrderCluster()
+                //------------- select for rows/columns text 
+                this._addSelectOrderCluster()
             break;
         }
         
@@ -443,7 +451,7 @@ export class MgePanel {
             .style("padding", "5px")
         
         this._idPanel = this.idView + "-f";
-        this.createFilter();
+        
         
     }
     
@@ -458,7 +466,7 @@ export class MgePanel {
                         
                         <select class="IC-selOrderBy" id="myRange">
                             <option value="0">Items (Alphabetic Order)</option>
-                            <option value="1">Number of Items (Descending)</option>
+                            <option value="1" selected>Number of Items (Descending)</option>
                             <option value="2">Number of Items (Ascending)</option>
                             <option value="3">Category (Alphabetic Order)</option>
                         </select>

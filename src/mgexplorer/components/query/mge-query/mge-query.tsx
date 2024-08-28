@@ -169,29 +169,12 @@ export class MgeQuery {
         if (params.value && params.value.length && data.query.includes('$value')) {
           select(this.element.querySelector('#values-container')).node().style.display = 'table-row'
 
-          // let requiredValues = data.query.match(/\$value/g)
-          // for (let i = 0; i < requiredValues.length; i++) {
-          //     this.addCustomValue(params.value[i])
-          // }
+          let requiredValues = data.query.match(/\$value\d+/g)
           
-          // // let data = ["Select a value"].concat(params.value)
-
-          // let selectElement = select(this.element.querySelector("#select_value"))
-            
-          // // selectElement.selectAll('option')
-          // //   .data(data)
-          // //   .enter()
-          // //     .append('option')
-          // //     .attr('value', d => d)
-          // //     .text(d => d)
-          // //     .property('disabled', (_,i) => i === 0)
-          // //     .property('selected', (_,i) => i === 0)
-              
-          // selectElement.on('keydown', function(e) { 
-          //   if (e.key === 'Enter' || e.keyCode === 13) {
-          //     _this.addCustomValue(this.value)
-          //   }
-          // })
+          requiredValues = [...new Set(requiredValues)];
+          for (let i = 0; i < requiredValues.length; i++) {
+              this.addCustomValue(params.value[i])
+          }
 
         } else {
           select(this.element.querySelector('#values-container')).style.display = 'none'
@@ -209,21 +192,13 @@ export class MgeQuery {
     }
 
     addCustomValue(value) {
-      let container = this.element.querySelector('#custom_value')
+      let container = this.element.querySelector('#values-container')
 
-      select(container).node().style.display = 'flex'
-
-      const valueElement = document.createElement('div')
-      valueElement.classList.add('selected-value')
-      valueElement.classList.add("selected")
+      const row = document.createElement('tr')
       
-      valueElement.innerHTML = `${value} <i class="fas fa-times" title="Delete" style="margin-left:5px;"></i>`
-
-      valueElement.querySelector('.fa-times').addEventListener('click', function() { 
-          this.parentNode.remove()
-      })
-
-      container.appendChild(valueElement)
+      row.innerHTML = `<input type="text" class='custom_value' name='custom_value' style="width: ${this.width * .9 + "px"}" value="${value}" />`
+      
+      container.appendChild(row)
     }
   
 
@@ -243,7 +218,6 @@ export class MgeQuery {
       let queries = state.queriesList.filter(d => d.endpoint === value)
       queries.sort( (a,b) => a.name.localeCompare(b.name))
 
-      console.log("queries = ", queries)
 
       querySelector.selectAll('option')
         .data(queries)
@@ -525,7 +499,13 @@ export class MgeQuery {
         
         state._queries[state.getDataKey()] = this.query
       
-        state._data[state.getDataKey()] = await processQuery(this.query, this.form) // execute the query and transform the results into the MGE format
+        let data = await processQuery(this.query, this.form) // execute the query and transform the results into the MGE format
+
+        
+        state._data[state.getDataKey()] = data.mge
+        let stylesheetActive = (this.element.querySelector('#input_stylesheet') as HTMLInputElement).checked
+        
+        state._stylesheet[state.getDataKey()] = stylesheetActive ? data.stylesheet : null
       }
       this.displayGraphics()  
     })
@@ -577,7 +557,7 @@ export class MgeQuery {
     return (
       <Host>
         <div class="query">
-        <form name='query_form' id='query_form' class="content" style={{width: this.width + 'px'}}>
+        <form name='query_form' id='query_form' class="content" style={{width: this.width + 'px', height: "85%", overflow: "scroll"}}>
             <section id='query_parameters'>
             <table class="form_section table" id='query-head'>
                 <tr id="sparql_endpoint"  >
@@ -619,7 +599,7 @@ export class MgeQuery {
                       <td>To</td>
                       <td><select id='select_to_year' class="time-select" name='to_year'></select></td>
                     </tr>
-                    <hr style={{width: this.width * .9 + "px"}}></hr>
+          
                 </div>
                 
 
@@ -635,7 +615,6 @@ export class MgeQuery {
                         <select id='input_lab2' name='query_lab2' style={{width: this.width * 0.65 + "px"}}/>
                         <datalist id='select_laboratory2'></datalist>
                     </td>
-                    <hr style={{width: this.width * .9 + "px"}}></hr>
                 </tr>
                 
 
@@ -643,30 +622,17 @@ export class MgeQuery {
                     <td style={{width: "25%"}}>Country </td><td>
                         <select id='input_country' name='query_country' style={{width: this.width * 0.65 + "px"}}/>
                     </td>
-                    <hr style={{width: this.width * .9 + "px"}}></hr>
                 </tr>
 
                 
 
                 <div id="values-container" style={{display: "none"}}>
                   <tr>Values</tr>
-                  <tr>
-                     
-                      <input id='select_value' name='custom_value' style={{width: this.width * .9 + "px"}}></input>
-                     
-                  </tr>
                 </div>
 
                 
-
-                <tr id='selectedValues' style={{display: "none"}}>
-                    {/* <td>Concept 2</td>
-                    <input id='input_value2' name='custom_value2' style={{width: this.width * 0.65 + "px", left: "6px"}}></input> */}
-                </tr>
-
-                
                 <tr id='stylesheet_form' style={{"display":"none"}}>
-                  <td>Use Stylesheet </td>
+                  <td>Stylesheet</td>
                   <input type='checkbox' id='input_stylesheet' name='check_stylesheet'></input>
                   <textarea id='value_stylesheet' name='stylesheet_content' style={{"display":"none"}}></textarea>
                 </tr>

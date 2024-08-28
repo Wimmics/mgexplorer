@@ -11,6 +11,10 @@ import { allPapersList, duoPapersList, clusterPapersList, sort } from './process
 import { zoom, axisBottom, axisLeft, format, max } from "d3";
 import { scaleLinear, scaleBand } from 'd3-scale';
 import Model from 'model-js';
+import state from "../../../store"
+
+
+
 let MgeBarchart = class MgeBarchart {
     constructor() {
         /** represents the width of the Histogram chart*/
@@ -84,7 +88,8 @@ let MgeBarchart = class MgeBarchart {
                 textBar: 0 // Text that will be printed after the bars
             },
             this._nbOfTypesDoc = 4, // number of types of documents in the base
-            this._colorsBars = ["#1f77b4", "#2ca02c", "#d62728", "#ff7d0e"]; // colors for the different types
+            this._colorsBars = ["#1f77b4", "#2ca02c", "#d62728", "#ff7d0e"], // colors for the different types
+            this.xTitle = ''
     }
     /**
    * Set box size for the chart includes the content
@@ -118,19 +123,26 @@ let MgeBarchart = class MgeBarchart {
     /** This function is to set the data to the chart
     * If no arguments, It will return the value of data
     */
-    async setData(_, globalData, secondNode, isFromEdge = false, isFromCluster = false, isFromHC = false) {
+    async setData(_, datasetName, secondNode, isFromEdge = false, isFromCluster = false, isFromHC = false) {
         if (!arguments.length)
             return this.model.data;
-        this.model.data = allPapersList(_, globalData);
+
+        this.model.data = allPapersList(_, state._data[datasetName]);
         if (!isFromEdge && !isFromCluster) {
-            this.model.data = allPapersList(_, globalData);
+            this.model.data = allPapersList(_, state._data[datasetName]);
         }
         else if (isFromEdge) {
-            this.model.data = duoPapersList(_, secondNode, globalData);
+            this.model.data = duoPapersList(_, secondNode, state._data[datasetName]);
         }
         else if (isFromCluster) {
-            this.model.data = clusterPapersList(_, globalData);
+            this.model.data = clusterPapersList(_, state._data[datasetName]);
         }
+        
+        this.model.stylesheet = state._stylesheet[datasetName]
+
+        if (this.model.stylesheet && this.model.stylesheet.barchart && this.model.stylesheet.barchart.x)
+            this.xTitle = this.model.stylesheet.barchart.x.label || ''
+
         const documents = this.model.data.root.data.documents;
         this._documentTypes = documents.map(d => d.type);
         this._documentTypes = this._documentTypes.filter((d, i) => this._documentTypes.findIndex(e => e.index === d.index) == i);
@@ -145,7 +157,8 @@ let MgeBarchart = class MgeBarchart {
                 'year': y,
                 'docTypes': types
             };
-        });
+        })
+
         this._histogramData.forEach(d => {
             d.docTypes = d.docTypes.map(t => {
                 return {
@@ -210,10 +223,14 @@ let MgeBarchart = class MgeBarchart {
         this._y = scaleLinear();
         this._yAxis = axisLeft()
             .scale(this._y);
+        
+        
+
         this._abscissaTitle = this._grpHistogram.append("text")
             .attr("y", 1)
             .attr("dy", ".71em")
-            .text("Publication Year");
+            .text(this.xTitle)
+
         this._ordinateTitle = this._helpTooltip.append("svg")
             .attr("class", "HC-legend")
             .attr("y", 1)
@@ -247,7 +264,7 @@ let MgeBarchart = class MgeBarchart {
         this._abscissaTitle = this._grpHistogram.append("text")
             .attr("y", 1)
             .attr("dy", ".71em")
-            .text("Publication Year");
+            .text(this.xTitle);
         this._ordinateTitle = this._helpTooltip.append("svg")
             .attr("class", "HC-legend")
             .attr("y", 1)
@@ -277,7 +294,7 @@ let MgeBarchart = class MgeBarchart {
      * In this function, it will set Geometric attributes of the graph
      * create actions on graph and manage all of the interaction on the graph
      * */
-    addHistogramChart(idDiv, divTag) {
+    addHistogramChart(div) {
         // ---------------- Geometric attributes of the graph
         this.model.margin = { top: 2, right: 2, bottom: 2, left: 2 };
         this.model.box = { width: this.width, height: this.height };
@@ -288,9 +305,11 @@ let MgeBarchart = class MgeBarchart {
         this.model.pMinWidthBar = 0.01; // Percentage relative to graph width for calculation of _minArea.widthBar Original 4
         this.model.indexAttBar = 0; // Index of the attribute that will be plotted in the toolbar
         this.model.redraw = 0;
+
         // ---------------- Initialization Actions
-        let _svg = divTag.append("svg"), // Create dimensionless svg
-        _grpChart = _svg.append("g"); // Does not exist in the original Iris
+        let _svg = div.append("svg") // Create dimensionless svg
+        let _grpChart = _svg.append("g")
+
         // Add zoom event
         let _zoomListener = zoom().on("zoom", _chartZoom);
         _zoomListener.scaleExtent([0.5, 10]);
@@ -298,33 +317,32 @@ let MgeBarchart = class MgeBarchart {
             .on("mousedown.zoom", null)
             .on("touchstart.zoom", null)
             .on("touchend.zoom", null);
-        let _helpContainer = divTag.append("div")
+        let _helpContainer = div.append("div")
             .attr("class", "helpContainer")
             .on("mouseover", this._openToolTip.bind(this))
             .on("mouseout", this._closeToolTip.bind(this));
         _helpContainer.append("i")
             .attr("class", "fas fa-info-circle")
             .style("font-size", "24px");
-        // .text("&#xf05a")
-        // .style("font-family" , "FontAwesome");
-        this._helpTooltip = divTag.append("div")
+       
+        this._helpTooltip = div.append("div")
             .attr("class", "helpTooltip")
             .attr("style", "width:40%;height:80px")
             .style("display", "none");
         this._grpHistogram = _grpChart.append("g").attr("class", "HistogramChart").attr("transform", "translate(30,20)");
-        // _______________________
-        const dataTest = [{ price: "20.0" }, { price: "34.0" }, { price: "35.0" }, { price: "40.0" }, { price: "59.0" }, { price: "60.0" }, { price: "61.0" }, { price: "62.0" }, { price: "70.0" }, { price: "80.0" }, { price: "100.0" }];
-        const dataTestResearch = [{ year: '2007', qtResearch: "6", qtPublication: "5" }, { year: '2008', qtResearch: "1", qtPublication: "7" }, { year: '2009', qtResearch: "2", qtPublication: "3" }];
+        
         //_______________________________
         //===================================================
         this.model.when(["box", "margin"], (box, margin) => {
             this.model.widthChart = box.width - margin.left - margin.right;
             this.model.heightChart = box.height - margin.top - margin.bottom;
         });
+
         this.model.when("box", function (box) {
             _svg.attr("width", box.width).attr("height", box.height);
             select(this.element).attr("height", box.height).attr("width", box.width);
         });
+
         //---------------------
         this.model.when("margin", function (margin) {
             _grpChart.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -498,18 +516,18 @@ let MgeBarchart = class MgeBarchart {
         //--------------------------------- Public functions
         // console.log(this.model.data);
     }
-    buildChart(idDiv, svg) {
-        this.addHistogramChart(idDiv, svg);
+    buildChart(div) {
+        this.addHistogramChart(div);
     }
     componentWillLoad() {
         this.setBox(this.model.box);
         // this.setData(this.chartData, state._data["data-0"]);
     }
     componentDidLoad() {
-        let svg = select(this.element.querySelectorAll(".histogram")[0])
+        let div = select(this.element.querySelectorAll(".histogram")[0])
             .attr("width", this.width)
             .attr("height", this.height);
-        this.buildChart("histogram", svg);
+        this.buildChart(div);
     }
     render() {
         return (h(Host, null,

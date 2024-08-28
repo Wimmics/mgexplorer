@@ -226,15 +226,16 @@ export class MgeIris {
 
     //---------------------
     @Method()
-    async setData (_, globalData) {
+    async setData (_, datasetName) {
 
         if (!arguments.length)
             return this.model.data;
-        this.model.data = this._subGraph.normalIris(_, globalData)
+        this.model.data = this._subGraph.normalIris(_, state._data[datasetName])
 
         this._vOrder = range(this.model.data.children.data.length)
-        this._vOrder.sort((a,b) => {
-            return this.model.data.children.data[a].labels[1].localeCompare(this.model.data.children.data[b].labels[1])
+        this._vOrder.sort((a,b) => { // create default ordering of items: descending count
+            return sum(this.model.data.children.data[b].edge.values.filter((_,i) => i < this._nbOfTypesDoc)) - 
+                sum(this.model.data.children.data[a].edge.values.filter((_,i) => i < this._nbOfTypesDoc))
         })
 
     };

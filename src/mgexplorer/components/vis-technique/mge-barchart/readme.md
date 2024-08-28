@@ -79,7 +79,7 @@ Type: `Promise<any>`
 
 
 
-### `setData(_: any, globalData: any, secondNode: any, isFromEdge?: boolean, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>`
+### `setData(_: any, datasetName: any, secondNode: any, isFromEdge?: boolean, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>`
 
 This function is to set the data to the chart
 If no arguments, It will return the value of data

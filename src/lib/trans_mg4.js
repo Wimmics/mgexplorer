@@ -71,14 +71,6 @@ function transformType(type) {
     return newType || 'Unknown';
 }
 
-// demander une valeur dans le résultat SPARQL
-// data : résultat SPARQL
-// i : indice de data (number, integer)
-// name : nom de la variable (n1, n2, doc, title, ...)
-function getValue(data, i, name) {
-    return name in data[i] ? data[i][name].value : ' ';
-}
-
 // prendre le nom complète d'un auteur et donner son nom abbrégé (par ex. getShortName("Yun Tian") = "Y. Tian" )
 // à optimiser : getShortName("Catherine Faron Zucker") donne "C. Zucker" mais "C. Faron Zucker" est attendu
 function getShortName(fullname) {

@@ -513,14 +513,14 @@ let MgeClustervis = class MgeClustervis {
     /** This function is to set the data to the chart
       * If no arguments, It will return the value of data
       */
-    async setData(_, globalData) {
+    async setData(_, datasetName) {
         if (!arguments.length)
             return this.model.data;
         if (_.cluster) {
-            _ = clusterClusterVis(_, globalData);
+            _ = clusterClusterVis(_, state._data[datasetName]);
         }
         else {
-            _ = normalClusterVis(_, globalData);
+            _ = normalClusterVis(_, state._data[datasetName]);
         }
         this.model.data = _;
         this.addAttribute(state.ATN_Category, "L");

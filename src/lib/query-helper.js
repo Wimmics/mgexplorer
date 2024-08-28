@@ -1,20 +1,22 @@
 import Swal from 'sweetalert2'
 
 import state from "../mgexplorer/store"
-import isHTML from 'is-html';
-import detectCSV from 'detect-csv';
 import { transform } from './trans_mg4'
 
 /**
 * Clear cache that stored from server
 */
-function clearQueryCache(form, query) {
+async function clearQueryCache(form, query) {
 
     if (!state.routes || !state.routes.cache) return;
     
     let data = { ...query }
     if (form) {
-        data = getFormData(form)
+        data = await getFormData(form)
+        if (data && data.message) {
+            alert(data.message)
+            return;
+        }
         data.id = query.id
     }
 
@@ -29,7 +31,7 @@ function clearQueryCache(form, query) {
         toast("Cache cleared!")
     }).catch(error => {
         console.log(error);
-    });
+    })
 }
 
       
@@ -40,7 +42,11 @@ function clearQueryCache(form, query) {
 async function processQuery(query, form) {
     let data = { ...query }
     if (form) {
-        data = getFormData(form)
+        let formResult = await getFormData(form)
+        if (formResult && formResult.message) {
+            return await getResult(formResult, data)    
+        }
+        data = {... formResult}
         data.id = query.id
     } 
 
@@ -55,16 +61,16 @@ async function processQuery(query, form) {
             method: routedata.method, 
             headers: routedata.headers, 
             body: JSON.stringify(data) 
-        })
+        }).catch(error => {  })
 
-        if(response.status >= 200 && response.status < 300) {
+        if (response.status >= 200 && response.status < 300) {
             return await response.json()
-        }
+        } 
     }
 
     let result = await sendRequest(data)
 
-    if (state._cache && state.routes.cache && query.id) { // write file on cache if enabled
+    if (!result.message && state._cache && state.routes.cache && query.id) { // write file on cache if enabled
         let routedata = state.routes.cache.write
         await fetch(routedata.route, { 
             method: routedata.method, 
@@ -91,57 +97,43 @@ async function prepare(query) {
 */
 async function sendRequest(values) {
 
-
-    let response, result = {}
-    if (state.routes.sparql) {
-        response = await fetch(state.routes.sparql.route, {
-                method: state.routes.sparql.method,
-                headers: state.routes.sparql.headers,
-                body: JSON.stringify(values)
-            }).then(response => response.text())
-    } else {
-        let url = values.endpoint + "?query=";
-        url = url + await prepare(values.query)
-
-        let headers = {
-            accept: "application/sparql-results+json"
-        }
-        
-        
-        try{
-            response = await fetch(url, { method: 'GET', headers: headers })
-                .then(async function(response){
-            
-                    if(response.status >= 200 && response.status < 300){
-                    return await response.text().then(data => {
-                        return data
-                    })}
-                    else return response
-                })
-        } catch(e) {
-            result.message = e.message
-
-            return await getResult(result, values)
-        }
-    }
+    let result = {}
+    let url = values.endpoint + "?query=" + await prepare(values.query)
     
     try{
-        let res = JSON.parse(response)
 
-        if (res.results) {
-            if (res.results.bindings && res.results.bindings.length) {
-                const keys = res.head.vars
-                if (keys.includes('p') && (keys.includes('author') || (keys.includes('s') && keys.includes('o')))) {
-                    result = { ...res }
-                } else result.message = 'Missing mandatory variables'
-            } else if (!res.results.bindings) {
-                result.message = "Data format issue: Not W3C compliant"
-            } else if (!res.results.bindings.length) {
-                result.message = 'No results'
+        let response = await fetch(url, {
+            method: "GET",
+            mode: url.startsWith("https") ? "cors" : "no-cors",
+            //mode: "no-cors", // For testing
+            headers: {
+                "Content-Type": "application/json", 
+                'Accept': "application/sparql-results+json"
             }
-        } else if (Object.keys(res).includes('status')) {
-            
-            switch(res.status) {
+        })
+        
+
+        if (response.ok) {
+            try {
+                let res = await response.json()
+                if (res.results.bindings && res.results.bindings.length) {
+                    const keys = res.head.vars
+                    if (keys.includes('p') && (keys.includes('author') || (keys.includes('s') && keys.includes('o')))) {
+                        result = { ...res }
+                    } else result.message = '"Missing mandatory variables.\n Ensure that your SELECT query includes either the triplet `?s ?p ?o` or the variable `?author`."'
+                } else if (!res.results.bindings) {
+                    result.message = "Data format issue: Not W3C compliant"
+                } else if (!res.results.bindings.length) {
+                    result.message = 'No results'
+                }
+            } catch (e) {
+                result.message = "An error occurred while processing the response.\nPlease try again later."
+            }
+        } else if (response.type === 'opaque') {
+            result.message = "We encountered a problem with the request, but the exact issue could not be identified due to CORS policy restrictions.\nFor more details, please check the browser console."
+        } else {
+      
+            switch(response.status) {
                 case 0:
                     if (res.statusText) {
                         switch(e.statusText.code) {
@@ -182,39 +174,18 @@ async function sendRequest(values) {
                 case 504:
                     result.message = 'Timeout'
                     break;
-                case 503:
-                case 500:
-                    if (e.response.includes('Virtuoso 42000 Error')) result.message = 'Timeout'
-                    else result.message = "Service Unavailable"
-                    break;
                 default:
-                    if (isHTML(e.response)) {
-                        let title = e.response.match(/<title[^>]*>([^<]+)<\/title>/)
-                        if (!title) {
-                            if (e.response.includes('Virtuoso 42000 Error')) {
-                                result.message = 'Timeout'
-                            } else {
-                                result.message = e.response.split('\n')[0]
-                            }
-                        }
-                        else result.message = title[1]
-                    }
+                    result.message = `Request failed with status: "${response.statusText} (${response.status})".`
+               
             }
-        } else if (!res.results) {
-            result.message = "Data format issue: Not W3C compliant"
-        }                  
-    } catch(e) {
-        result.response = text
-        if (text === undefined) result.message = undefined
-        else if (typeof text === "string" && text.startsWith("Virtuoso 42000 Error")) 
-            result.message = "Timeout"
-        else if (isHTML(text)) { 
-            result.message = 'Data format issue: HTML'
-        } else if (detectCSV(text)) {
-            result.message = 'Data format issue: CSV'
+        }                 
+    } catch(error) { // network issues
+
+        if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+            result.message = 'Network error: Failed to fetch the resource.\nCheck the browser console for more information.'
         } else {
-            result.message = e.message
-        } 
+            result.message = 'An error occurred:', error.message
+        }
     }
 
     return await getResult(result, values)
@@ -231,41 +202,51 @@ async function tune(data) {
 
     for (let p of Object.keys(params)) {
         // Replace metadata by selected value of corresponding list
-        if (p == 'country' && params[p]) {
-            // Parse country for Virtuoso
-            data.query = data.query.replaceAll('$country', params[p])
-            data.query = data.query.replace(/countrye/, params[p].replace(/ /, "_"));
-            data.query = data.query.replace(/countryf/, getFrenchName(params[p]));
-        } else if (p == 'period') {
-            data.query = data.query.replaceAll('$beginYear', params[p][0])
-            data.query = data.query.replaceAll('$endYear', params[p][1])
-        } else if (p == 'lab' && params.type == 2) {
-            data.query = data.query.replaceAll('$lab1', params[p][0])
-            data.query = data.query.replaceAll('$lab2', params[p][1])
-        } else if (p == 'lab') {
-            data.query = data.query.replaceAll('$lab1', params[p][0])
-        } else if (p == 'value') {
-            // let regex = new RegExp("\b\$value\d+\b");
-            let necessaryValues = [...data.query.matchAll(/\$value\d+/g) ] // find all values used in the query through the patten $value
-            necessaryValues = necessaryValues.map(d => d[0]) // keep only the value label
-            necessaryValues = necessaryValues.filter( (d,i) => necessaryValues.indexOf(d) === i) // keep only unique values
+        switch (p) {
+            case 'country':
+                if (params[p]) {
+                    // Parse country for Virtuoso
+                    data.query = data.query.replaceAll('$country', params[p]);
+                    data.query = data.query.replace(/countrye/, params[p].replace(/ /, "_"));
+                    data.query = data.query.replace(/countryf/, getFrenchName(params[p]));
+                }
+                break;
+        
+            case 'period':
+                data.query = data.query.replaceAll('$beginYear', params[p][0]);
+                data.query = data.query.replaceAll('$endYear', params[p][1]);
+                break;
+        
+            case 'lab':
+                data.query = data.query.replaceAll('$lab1', params[p][0]);
+                if (params[p][1]) {
+                    data.query = data.query.replaceAll('$lab2', params[p][1]);
+                }
+                break;
+        
+            case 'value':
+                params[p].forEach((v, i) => {
+                    data.query = data.query.replaceAll('$value' + (i + 1), v);
+                })
 
-            if (necessaryValues.length > params[p].length) {
-                return {message: `This query requires ${necessaryValues.length} values. You provided ${params[p].length}. Please select the necessary amount of values.` }
-            }
-
-            params[p].forEach((v,i) => {
-                data.query = data.query.replaceAll('$value'+(i+1), v)
-            })
-        } else if (p == 'prefixes'){
-            if (params[p] != null)
-            params[p].forEach(pre => {
-                data.query = pre + '\n' + data.query;
-            })
+                if (data.stylesheet) {
+                   
+                    let string = JSON.stringify(data.stylesheet)
+                    params[p].forEach((v,i) => {
+                        string = string.replaceAll('$value'+(i+1), v)
+                    })
+                    data.stylesheet = JSON.parse(string)
+                }
+                break;
+        
+            default:
+                // Default case if none of the above matches
+                break;
         }
+        
     }
 
-    return true; // validate the tuning
+    return true // validate the tuning
 }
 
 async function requestFile(data) {
@@ -297,8 +278,9 @@ async function getResult(res, query) {
     // transform data for MGExplorer
     if (!res.message) {
         if (res.results) {
-            result = await transform(res.results.bindings, query.stylesheetActive ? query.stylesheet : null);
+            result = await transform(res.results.bindings, query.stylesheetActive ? query.stylesheet : null)
             result.sparql = res
+            result.stylesheet = query.stylesheet
         }
         else {
             result = await transform(res, query) // for file data (hceres, i3s) -> query == stylesheet
@@ -308,7 +290,7 @@ async function getResult(res, query) {
     if (result.mge)
         result.mge.nodes.dataNodes.forEach(node => node.idOrig = node.id) /// mgexplorer does not work without this, but I don't know why
 
-    return result.mge || result
+    return result
 }
 
 /*------------------ query functions ------------------------*/
@@ -317,21 +299,26 @@ async function getResult(res, query) {
 *Get data from the form after user chose option for endpoint, query and custom variable
 * 
 */
-function getFormData(form) {
+async function getFormData(form) {
 
     let content = form['query_content'] ? form['query_content'].value : null
+
+    let customValues = getValues(form) 
+
+    if (customValues && customValues.message) 
+        return customValues
+
     return {
         'query': content,
         'name': form['query_name'] ? form['query_name'].value: null,
         'endpoint': form['query_endpoint'] ? form['query_endpoint'].value.trim() : null,
         'params': {
-            "type": form['query_type'].value,
             'lab': [ content && content.includes("$lab1") ? form['query_lab1'].value : '', 
                 content && content.includes("$lab2") ? form['query_lab2'].value : '' ],
             'country': content && content.includes("$country") ? form['query_country'].value : '',
             'period': [ content && content.includes("$beginYear") ? +form['from_year'].value : '', 
                 content && content.includes("$endYear") ? +form['to_year'].value : '' ],
-            'value': getValues(form) 
+            'value': customValues
         },
         'stylesheetActive': form['check_stylesheet'].checked,
         'stylesheet': form['stylesheet_content'].value.length > 0 ? JSON.parse(form['stylesheet_content'].value) : null
@@ -341,10 +328,19 @@ function getFormData(form) {
 function getValues(form) {
     let selectedValues = []
 
-    let container = form.querySelector("#selectedValues")
-    let children = container.querySelectorAll('.selected-value')
+    let container = form.querySelector("#values-container")
+    let children = container.querySelectorAll('.custom_value')
+
+    const dangerousCharacters = /[&<>"'`/]/g;
    
-    children.forEach(element => selectedValues.push(element.textContent.trim()))
+    for (let element of children) {
+        let value = element.value
+        if (value.match(dangerousCharacters)) {
+            return { message : "Input contains invalid characters. Please remove any of the following: & < > \" ' ` /" }
+
+        }
+        selectedValues.push(value.trim())
+    }
    
     return selectedValues
 }

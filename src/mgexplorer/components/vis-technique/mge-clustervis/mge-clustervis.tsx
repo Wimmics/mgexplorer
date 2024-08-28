@@ -604,14 +604,14 @@ export class MgeClustervis {
       * If no arguments, It will return the value of data
       */
     @Method()
-    async setData(_, globalData) {
+    async setData(_, datasetName) {
         if (!arguments.length)
             return this.model.data;
 
         if (_.cluster) {
-            _ = this._subGraph.clusterClusterVis(_, globalData);
+            _ = this._subGraph.clusterClusterVis(_, state._data[datasetName]);
         } else {
-            _ = this._subGraph.normalClusterVis(_, globalData);
+            _ = this._subGraph.normalClusterVis(_, state._data[datasetName]);
         }
 
         this.model.data = _;
@@ -797,7 +797,7 @@ export class MgeClustervis {
             this.alteraAttribute(indexAnel, indexAtributo - 1000, "V");
         else
             this.alteraAttribute(indexAnel, indexAtributo, "L");
-        this._clusterVisPanel.alteraSelectOrder();
+        if (this._clusterVisPanel) this._clusterVisPanel.alteraSelectOrder();
     };
 
     //-------------------------

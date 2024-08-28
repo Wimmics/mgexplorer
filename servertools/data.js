@@ -36,7 +36,11 @@ class Data{
     async saveQuery(query) {
 
         let json = await this.readFile(this.filename.queries) 
-        json.push(query);
+
+        let index = json.findIndex(d => d.id === query.id)
+        if (index > -1) // if query exists, update metadata
+            json.splice(index, 1, query)
+        else json.push(query) // new query
 
         await this.writeFile(this.filename.queries, json)
     
