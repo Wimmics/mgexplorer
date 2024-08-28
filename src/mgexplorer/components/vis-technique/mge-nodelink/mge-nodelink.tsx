@@ -464,12 +464,14 @@ _closeToolTip(){
         
         this.model.stylesheet = state._stylesheet[datasetName]
 
+        
         if (this.model.stylesheet) {
             let nodeStyle = this.model.stylesheet.node
             if (nodeStyle && nodeStyle.radius) {
                 this._indexAttrSize = nodeStyle.radius.variable || "qtNodes"
             }
         }
+
 
         if (this.model.data.isCluster === undefined) {
             vNodesTemp = range(0,this.model.data.nodes.dataNodes.length).map(function () { return 0; });

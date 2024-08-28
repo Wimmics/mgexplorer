@@ -317,6 +317,7 @@ export class MgePanel {
         
         // set the default value as selected in the select element
         const defaultValue =  await this._chart.indexAttrSize()
+        
         this._selectNodeSize.selectAll('option')
             .property('selected', function() { return this.value === defaultValue.trim() })
         

@@ -163,8 +163,9 @@ export class MgeDashboard {
         
         state._queries[this.datasetName] = { ...queryData }
         let data = await processQuery(queryData)
-        state._data[this.datasetName] = data.mge
-        state._stylesheet[this.datasetName] = values.stylesheet
+
+        state._data[this.datasetName] = data.mge || data
+        state._stylesheet[this.datasetName] = data.stylesheet
     }
     
     /**
@@ -743,7 +744,7 @@ export class MgeDashboard {
             let _initView = await this._initView.node().getChart()
             let data = state._data[this.datasetName]
             if (typeof data != 'undefined' && !data.message) {
-                await _initView.setData(data)
+                await _initView.setData(data, this.datasetName)
             }
             
             if (this.initComponent == "mge-query")
