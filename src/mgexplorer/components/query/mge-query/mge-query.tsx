@@ -168,6 +168,7 @@ export class MgeQuery {
 
         if (params.value && params.value.length && data.query.includes('$value')) {
           select(this.element.querySelector('#values-container')).node().style.display = 'table-row'
+          select(this.element.querySelector('#values-container')).selectAll('.custom_value').remove()
 
           let requiredValues = data.query.match(/\$value\d+/g)
           
@@ -502,7 +503,7 @@ export class MgeQuery {
         let data = await processQuery(this.query, this.form) // execute the query and transform the results into the MGE format
 
         
-        state._data[state.getDataKey()] = data.mge
+        state._data[state.getDataKey()] = data.mge || data
         let stylesheetActive = (this.element.querySelector('#input_stylesheet') as HTMLInputElement).checked
         
         state._stylesheet[state.getDataKey()] = stylesheetActive ? data.stylesheet : null

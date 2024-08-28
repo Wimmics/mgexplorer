@@ -118,7 +118,8 @@ app.get(prefix + '/dashboard', async function (req, res){
             delete: { route: prefix + "/cache/delete", method: 'POST',  headers: {'Content-Type': 'application/json'}},
             write: { route: prefix + "/cache/write", method: 'POST',  headers: {'Content-Type': 'application/json'}},
             get: { route: prefix + "/cache/get", method: 'POST',  headers: {'Content-Type': 'application/json'}}, 
-        }
+        },
+        sparql: { route: prefix + "/sparql", method: 'POST',  headers: {'Content-Type': 'application/json'}}
     }
 
     res.render("index", result);
@@ -219,24 +220,10 @@ app.get(prefix + "/apps/:app/data/:dataset", async function(req, res) {
 // })
 
 
-// SPARQL request : not being used anymore
-// app.post(prefix + '/sparql', async function (req, res) {
-    
-//     let data = req.body;
-
-//     let result;
-//     try {
-//         result = await sparql.sendRequest(data.query, data.endpoint)    
-//     } catch (e) {
-//         console.log('error = ', e)
-//         // send error back to client
-//         res.sendStatus(400)
-//     }
-
-//     // send result back to client
-//     if (result.status) res.sendStatus(result.status)
-//     else res.send(result);
-// })
+// SPARQL request
+app.post(prefix + '/sparql', async function (req, res) {
+    res.send(await sparql.sendRequest(req.body.query, req.body.endpoint))
+})
 
 
 

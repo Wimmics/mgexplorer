@@ -97,95 +97,36 @@ async function prepare(query) {
 */
 async function sendRequest(values) {
 
-    let result = {}
     let url = values.endpoint + "?query=" + await prepare(values.query)
-    
+    let result;
     try{
-
-        let response = await fetch(url, {
-            method: "GET",
-            mode: url.startsWith("https") ? "cors" : "no-cors",
-            //mode: "no-cors", // For testing
-            headers: {
-                "Content-Type": "application/json", 
-                'Accept': "application/sparql-results+json"
-            }
+        let response = await fetch(state.routes.sparql ? state.routes.sparql.route : url, {
+            method: state.routes.sparql ? state.routes.sparql.method : "GET",
+            headers: state.routes.sparql ? state.routes.sparql.headers : { "Content-Type": "application/json",  'Accept': "application/sparql-results+json" },
+            body: JSON.stringify(values)
         })
         
-
-        if (response.ok) {
-            try {
-                let res = await response.json()
-                if (res.results.bindings && res.results.bindings.length) {
-                    const keys = res.head.vars
-                    if (keys.includes('p') && (keys.includes('author') || (keys.includes('s') && keys.includes('o')))) {
-                        result = { ...res }
-                    } else result.message = '"Missing mandatory variables.\n Ensure that your SELECT query includes either the triplet `?s ?p ?o` or the variable `?author`."'
-                } else if (!res.results.bindings) {
-                    result.message = "Data format issue: Not W3C compliant"
-                } else if (!res.results.bindings.length) {
-                    result.message = 'No results'
+        result = await response.json()
+       
+        if (!result.message) {
+            let bindings = result.results.bindings
+            if (!bindings) {
+                result = {message: "Data format issue: Not W3C compliant"}
+            } else if (!bindings.length) {
+                result = {message: 'No results'}
+            } else {
+                const keys = result.head.vars
+                if (keys.includes('p') && (keys.includes('author') || (keys.includes('s') && keys.includes('o')))) {
+                // all good
+                } else {
+                    result = {message: '"Missing mandatory variables.\n Ensure that your SELECT query includes either the triplet `?s ?p ?o` or the variable `?author`."'}
                 }
-            } catch (e) {
-                result.message = "An error occurred while processing the response.\nPlease try again later."
-            }
-        } else if (response.type === 'opaque') {
-            result.message = "We encountered a problem with the request, but the exact issue could not be identified due to CORS policy restrictions.\nFor more details, please check the browser console."
-        } else {
-      
-            switch(response.status) {
-                case 0:
-                    if (res.statusText) {
-                        switch(e.statusText.code) {
-                            case 'ERR_TLS_CERT_ALTNAME_INVALID':
-                                result.message = 'Invalid Certificate'
-                                break;
-                            case 'ETIMEDOUT':
-                                result.message = 'Timeout'
-                                break;
-                            case 'ENOTFOUND':
-                                result.message = 'Service Not Found'
-                                break;
-                            default: // 'ECONNREFUSED', EPROTO, etc.
-                                result.message = 'Service Unreachable'
-                        }
-                    } 
-                    else {
-                        result.message = 'Service Unreachable'
-                    }
-                    break;
-                case 400:
-                    result.message = "Bad Request"
-                    break;
-                case 401:
-                case 403:
-                case 407:
-                case 511:
-                    result.message = 'Access Unauthorized'
-                    break;
-                case 404:
-                case 410:
-                    result.message = 'Service Not Found'
-                    break;
-                case 406:
-                    result.message = 'Format Not Supported'
-                    break;
-                case 408:
-                case 504:
-                    result.message = 'Timeout'
-                    break;
-                default:
-                    result.message = `Request failed with status: "${response.statusText} (${response.status})".`
-               
-            }
-        }                 
-    } catch(error) { // network issues
 
-        if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-            result.message = 'Network error: Failed to fetch the resource.\nCheck the browser console for more information.'
-        } else {
-            result.message = 'An error occurred:', error.message
+            }
         }
+
+    } catch(error)  {
+        result = { message: `Request failed: ${error.message}`}
     }
 
     return await getResult(result, values)
@@ -285,10 +226,10 @@ async function getResult(res, query) {
         else {
             result = await transform(res, query) // for file data (hceres, i3s) -> query == stylesheet
         }
-    }
 
-    if (result.mge)
-        result.mge.nodes.dataNodes.forEach(node => node.idOrig = node.id) /// mgexplorer does not work without this, but I don't know why
+        if (result.mge)
+            result.mge.nodes.dataNodes.forEach(node => node.idOrig = node.id) /// mgexplorer does not work without this, but I don't know why
+    }
 
     return result
 }
