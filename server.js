@@ -143,6 +143,10 @@ app.post(prefix + '/publish', async function (req, res) {
         res.sendStatus(500)
         return;
     }
+
+    // delete cache
+    await cache.deleteFile(req.body)
+    
     res.sendStatus(200);
 })
 

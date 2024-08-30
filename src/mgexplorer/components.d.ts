@@ -766,6 +766,7 @@ export namespace Components {
          */
         "_nodeEdgePanel": any;
         "_view": any;
+        "acChangeAttrScale": (value: any) => Promise<void>;
         "acChangeAttrSize": (value: any) => Promise<void>;
         /**
           * This function will change the value of charge on force layout. This function will be called when adjust Charge slider in filter panel
@@ -816,6 +817,7 @@ export namespace Components {
           * represents the height of the nodelinks chart
          */
         "height": number;
+        "indexAttrScale": (_: any) => Promise<any>;
         /**
           * Changes the attribute that will be used to map the size
          */
@@ -852,7 +854,6 @@ export namespace Components {
          */
         "_searchAutocomplete": any;
         "_selectLegend": any;
-        "_selectNodeSize": any;
         /**
           * Represents the select input for order of Iris(`mge-iris`) setting panel and  histogram(mge-barchart) setting panel
          */
@@ -1744,7 +1745,6 @@ declare namespace LocalJSX {
          */
         "_searchAutocomplete"?: any;
         "_selectLegend"?: any;
-        "_selectNodeSize"?: any;
         /**
           * Represents the select input for order of Iris(`mge-iris`) setting panel and  histogram(mge-barchart) setting panel
          */

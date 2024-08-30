@@ -28,6 +28,16 @@
 
 ## Methods
 
+### `acChangeAttrScale(value: any) => Promise<void>`
+
+
+
+#### Returns
+
+Type: `Promise<void>`
+
+
+
 ### `acChangeAttrSize(value: any) => Promise<void>`
 
 
@@ -141,6 +151,16 @@ Type: `Promise<any>`
 ### `getQtNodes() => Promise<any>`
 
 This function will get the total number of nodes
+
+#### Returns
+
+Type: `Promise<any>`
+
+
+
+### `indexAttrScale(_: any) => Promise<any>`
+
+
 
 #### Returns
 

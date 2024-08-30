@@ -16,7 +16,6 @@ class SPARQLRequest{
     
     async sendRequest(query, endpoint){
         let url = endpoint + "?query=" + this.prepare(query); 
-        console.log(url)
 
         try {
             let response = await fetch(url, { 

@@ -45,7 +45,8 @@ export class MgePanel {
     @Prop({ mutable: true }) _sliderLinkDistance = null;
     /** Text search input (of `mge-nodelinks`)*/
     @Prop({ mutable: true }) _searchAutocomplete = null;
-    @Prop({ mutable: true }) _selectNodeSize = null;
+    // @Prop({ mutable: true }) _selectNodeSize = null;
+    // @Prop({ mutable: true }) _selectNodeScale = null;
     
     
     
@@ -147,8 +148,7 @@ export class MgePanel {
             for (i = 0; i < sizeValueTitle; i++)
                 this._selectOrder.append("option").attr("value",i + 1000).text(_chartData.nodes.valueTitle[i]);  // 100 come�a �ndice num�ricos    
             
-            // S� funciona quando todos os atributos forem incluidos no <select>         
-            // Seta o item selecionado
+           
             if (this._chart.indexAttrSort() < 1000)
                 this._selectOrder.selectedIndex = await this._chart.indexAttrSort();
             else
@@ -313,16 +313,31 @@ export class MgePanel {
     
     async _addNodeSizeSelect() {
         
-        this._selectNodeSize = select(this.element.querySelector("#select-nodes-size"))
+        const _selectNodeSize = select(this.element.querySelector("#select-nodes-size"))
         
         // set the default value as selected in the select element
         const defaultValue =  await this._chart.indexAttrSize()
         
-        this._selectNodeSize.selectAll('option')
+        _selectNodeSize.selectAll('option')
             .property('selected', function() { return this.value === defaultValue.trim() })
         
-        this._selectNodeSize.on('change', async (d) => {
+        _selectNodeSize.on('change', async (d) => {
             this._chart.acChangeAttrSize(d.target.value);
+        });
+    }
+
+    async _addNodeScaleSelect() {
+        
+        const _selectNodeScale = select(this.element.querySelector("#select-nodes-scale"))
+        
+        // set the default value as selected in the select element
+        const defaultValue =  await this._chart.indexAttrScale()
+        
+        _selectNodeScale.selectAll('option')
+            .property('selected', function() { return this.value === defaultValue.trim() })
+        
+        _selectNodeScale.on('change', async (d) => {
+            this._chart.acChangeAttrScale(d.target.value);
         });
     }
     
@@ -418,7 +433,9 @@ export class MgePanel {
                 //------------- Slider to modify link distance attribute
                 this._addSliderLinkDistance();
                 
-                this._addNodeSizeSelect();
+                this._addNodeSizeSelect() // select to modify the variable that defines the node' size
+
+                this._addNodeScaleSelect() // select to choose the type of scale (linear, log)
             break;
             
             case 'mge-barchart':
@@ -487,10 +504,18 @@ export class MgePanel {
                         </div>
             
                         <div class="group">
-                            <label class="select-label">Node size: </label> 
+                            <label class="select-label">Node size (variable): </label> 
                             <select id="select-nodes-size">
                                 <option value="qtNodes">Number of connected nodes</option>
                                 <option value="qtItems">Number of items</option>
+                            </select>
+                        </div>
+
+                        <div class="group">
+                            <label class="select-label">Node size (scale): </label> 
+                            <select id="select-nodes-scale">
+                                <option value="linear">Linear</option>
+                                <option value="log">Logarithmic</option>
                             </select>
                         </div>
             

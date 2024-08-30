@@ -7,7 +7,7 @@ import Model from 'model-js';
 import {max, zoom , forceSimulation, forceLink , range, schemeCategory10, forceCenter, forceManyBody, forceCollide, forceX, forceY, extent} from 'd3'
 import { nest } from 'd3-collection'
 import  { select } from 'd3-selection'
-import  { scaleLinear, scaleOrdinal } from 'd3-scale'
+import  { scaleLinear, scaleLog } from 'd3-scale'
 
 
 @Component({
@@ -42,6 +42,7 @@ export class MgeNodelink {
   private _forceLayout = null;
 
   private _indexAttrSize = null;      // Just for categorical
+    private _indexAttrScale = null;
 
   private _rClusterScale;
   private _linkWidthScale;
@@ -69,8 +70,9 @@ export class MgeNodelink {
     this._forceLayout = forceSimulation(),
 
     this._indexAttrSize = 'qtNodes';      // default size of circles depends on the number of connections (e.g. coauthors)
+    this._indexAttrScale = 'linear' // default scale is linear
 
-    this._rClusterScale = scaleLinear().range([3, 20]);
+    this._rClusterScale = { 'linear': scaleLinear().range([3,20]), 'log': scaleLog().range([3,20]) }
     this._linkWidthScale = scaleLinear().range([1, 7]);
     this._linkDistanceScale = scaleLinear();
     this._chargeScale = scaleLinear().range([50, 800]);
@@ -274,7 +276,7 @@ export class MgeNodelink {
                 exit => exit.remove()
                 
             )
-            .attr("r", d => this._rClusterScale(d[this._indexAttrSize]) )
+            .attr("r", d => this._rClusterScale[this._indexAttrScale](d[this._indexAttrSize]) )
             .style("fill", d => d.style.color)
             .on("mouseover", this._onMouseOverNode.bind(this))
             .on("mouseout", this._onMouseOutNode.bind(this))
@@ -456,7 +458,7 @@ _closeToolTip(){
     //---------------------
     @Method()
     async setData(_, datasetName) {
-        //let qtLabel=0, qtValue=0;
+        
         let maxQtEdges, vNodesTemp;
         if (!arguments.length)
             return this.model.data;
@@ -464,16 +466,16 @@ _closeToolTip(){
         
         this.model.stylesheet = state._stylesheet[datasetName]
 
-        
         if (this.model.stylesheet) {
             let nodeStyle = this.model.stylesheet.node
             if (nodeStyle && nodeStyle.radius) {
                 this._indexAttrSize = nodeStyle.radius.variable || "qtNodes"
+                this._indexAttrScale = nodeStyle.radius.scale  || "linear"
             }
         }
 
 
-        if (this.model.data.isCluster === undefined) {
+        if (!this.model.data.isCluster) {
             vNodesTemp = range(0,this.model.data.nodes.dataNodes.length).map(function () { return 0; });
             this.model.data.isCluster = false;
             this.model.data.nodes.qtNodes = this.model.data.nodes.dataNodes.length;
@@ -501,7 +503,7 @@ _closeToolTip(){
         this._graphData = this._adjustGraph(this.model.data);
 
         this._graphData.nodes.forEach(node => {
-            node.qtNodes = this._graphData.edges.filter(d => d.src === node.id).length
+            node.qtNodes = this._graphData.edges.filter(d => d.src === node.id || d.tgt === node.id).length
             node.qtItems = this.qtItems(node)
         })
 
@@ -513,7 +515,7 @@ _closeToolTip(){
         let maxQtNodes =  max(this._graphData.nodes, d => d.qtNodes);
         this._chargeScale.domain([1, maxQtNodes]); // repulsion scale
 
-        let maxLinkDistance = this._rClusterScale(maxQtNodes)
+        let maxLinkDistance = this._rClusterScale[this._indexAttrScale](maxQtNodes)
         this._linkDistanceScale.domain([0, maxQtNodes]).range([1, maxLinkDistance]);
 
         maxQtEdges = max(this._graphData.edges, function (d) { return d.qt });
@@ -531,9 +533,7 @@ _closeToolTip(){
     };
 
     async _setClusterScale() {
-
-        this._rClusterScale.domain(extent(this._graphData.nodes, d => d[this._indexAttrSize])); // radius scale (changes according to the selected attribute)
-        
+        this._rClusterScale[this._indexAttrScale].domain(extent(this._graphData.nodes, d => d[this._indexAttrSize])); // radius scale (changes according to the selected attribute)
     }
 
     async _setForceLayout() {
@@ -544,7 +544,7 @@ _closeToolTip(){
                 .distance((d) => this._configLayout.linkDistance + this._linkDistanceScale(d.source.qtNodes) + this._linkDistanceScale(d.target.qtNodes)))
             .force("forceX", forceX().strength(this._configLayout.gravity))
             .force("forceY", forceY().strength(this._configLayout.gravity))
-            .force('collide', forceCollide(d => this._rClusterScale(d[this._indexAttrSize])))
+            .force('collide', forceCollide(d => this._rClusterScale[this._indexAttrScale](d[this._indexAttrSize])))
 
         this._forceLayout.on("tick", () => {
             if (this.model.data !== null)
@@ -635,6 +635,15 @@ _closeToolTip(){
         this._indexAttrSize = _;
     };
 
+    @Method()
+    async indexAttrScale(_) {
+        if (!arguments.length)
+            return this._indexAttrScale;
+        this._indexAttrScale = _;
+    };
+
+
+
     //======== Actions Functions
 
     //---------------------
@@ -676,8 +685,19 @@ _closeToolTip(){
     async acChangeAttrSize(value) {
         this._indexAttrSize = value;
         await this._setClusterScale();
-        this._forceLayout.force('collide', forceCollide(d => this._rClusterScale(d[this._indexAttrSize])))
+        this._forceLayout.force('collide', forceCollide(d => this._rClusterScale[this._indexAttrScale](d[this._indexAttrSize])))
         .alpha(1).restart()
+        this.model.redraw += 1;
+    };
+
+    //---------------------
+    @Method()
+    async acChangeAttrScale(value) {
+        
+        this._indexAttrScale = value;
+        await this._setClusterScale();
+        this._forceLayout.force('collide', forceCollide(d => this._rClusterScale[this._indexAttrScale](d[this._indexAttrSize])))
+            .alpha(1).restart()
         this.model.redraw += 1;
     };
     

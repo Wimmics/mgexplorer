@@ -212,22 +212,24 @@ function defStyle(stylesheet, styleMap, a1, a2, elem) {
  * Assign a style to author node in the style map
  * mixvar is a backup style in case node already has a style, comes from ?mix variable
  */
-function addStyle(stylesheet, map, node, style, mixvar) {
+function addStyle(stylesheet, map, node, style, mixStyle) {
     if (style === SKIP) return // do nothing yet, style may be set by another result
     
     if (map.has(node)) {
         // node already has style
-        var val = map.get(node);
-        if (val != style) { // different styles for same node
-            if (mixvar) map.set(node, mixvar); // set mix style from ?mix variable
+        var oldStyle = map.get(node);
+        if (oldStyle != style) { // different styles for same node
+            if (mixStyle) map.set(node, mixStyle); // set mix style from ?mix variable
             
-            else if (stylesheet.node != null && stylesheet.node.mix != null ) { // set mix style from stylesheet
-                getMixValue(stylesheet, map, node, val, style);
+            
+            else if (stylesheet.node && stylesheet.node.mix && stylesheet.node.mix.active ) { // set mix style from stylesheet
+                map.set(node, "mix") 
+                //getMixValue(stylesheet, map, node, oldStyle, style);
             }
         }
     }
     else {
-        map.set(node, style);
+        map.set(node, style)
     }
 }
 
@@ -235,15 +237,16 @@ function addStyle(stylesheet, map, node, style, mixvar) {
  * value: current value 
  * style: new value
  */ 
-function getMixValue(stylesheet, map, node, value, style) {
-    if (stylesheet.node[value] && stylesheet.node[value].priority &&
+function getMixValue(stylesheet, map, node, oldStyle, style) {
+    if (stylesheet.node[oldStyle] && stylesheet.node[oldStyle].priority &&
         stylesheet.node[style] && stylesheet.node[style].priority) {
-        if (stylesheet.node[value].priority > stylesheet.node[style].priority) {  // keep style with higher priority
-            map.set(node, style);
+        
+        if (stylesheet.node[oldStyle].priority > stylesheet.node[style].priority) {  // keep style with higher priority
+            map.set(node, oldStyle);
         }
     }
     else { // uses the color assigned to MIX in the stylesheet
-        map.set(node, MIX);
+        map.set(node, "mix");
     }
 }
 
