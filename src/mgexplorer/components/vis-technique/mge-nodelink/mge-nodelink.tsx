@@ -1,4 +1,4 @@
-import { Component, Element, Host, Prop, h, Event, EventEmitter, Method} from '@stencil/core';
+import { Component, Element, Host, Prop, h, Event, EventEmitter, Method, getAssetPath} from '@stencil/core';
 // import AlgCluster from './algCluster';
 import state from "../../../store"
 import { drag } from 'd3-drag';
@@ -125,9 +125,10 @@ export class MgeNodelink {
         .on("mouseover", this._openToolTip.bind(this))
         .on("mouseout", this._closeToolTip.bind(this));
 
-    _helpContainer.append("i")
-        .attr("class", "fas fa-palette")
-        .style("font-size", "20px");
+    _helpContainer.append("img")
+        .attr('src', getAssetPath('assets/images/palette.svg'))
+        .attr('width', 15)
+        .attr('height', 15)
 
     this._helpTooltip = div.append("div")
         .attr("class", "helpTooltip")

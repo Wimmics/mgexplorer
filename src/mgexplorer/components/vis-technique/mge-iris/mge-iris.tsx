@@ -1,4 +1,4 @@
-import { Component, Element, Host, Prop, h, Method} from '@stencil/core';
+import { Component, Element, Host, Prop, h, Method, getAssetPath} from '@stencil/core';
 import { select , selectAll} from 'd3-selection';
 import { max, sum } from 'd3-array';
 // import {normalIris, sort} from './process-data';
@@ -808,9 +808,10 @@ export class MgeIris {
             .on("mouseover", this._openToolTip.bind(this))
             .on("mouseout", this._closeToolTip.bind(this));
 
-        _helpContainer.append("i")
-            .attr("class", "fas fa-palette")
-            .style("font-size", "20px");
+        _helpContainer.append("img")
+            .attr('src', getAssetPath('assets/images/palette.svg'))
+            .attr('width', 15)
+            .attr('height', 15)
 
         this._helpTooltip = divTag.append("div")
             .attr("class", "helpTooltip")

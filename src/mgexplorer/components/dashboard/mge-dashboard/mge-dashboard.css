@@ -1,3 +1,6 @@
+
+/* @import url('../../assets/fontawesome/css/all.css'); */
+
 :host {
   display: block;
 
@@ -74,5 +77,4 @@
     cursor: pointer;
   }
 
-@import url('../../../assets/fontawesome/css/all.css');
 

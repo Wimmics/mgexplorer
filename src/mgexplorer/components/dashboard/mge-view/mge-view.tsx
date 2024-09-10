@@ -1,4 +1,4 @@
-import { Component, Element, Host, Prop, h, Method, Watch} from '@stencil/core';
+import { Component, Element, Host, Prop, h, Method, Watch, getAssetPath} from '@stencil/core';
 import state from "../../../store"
 import {toPng, toSvg} from 'html-to-image';
 import { pointer, select, selectAll } from 'd3-selection';
@@ -10,6 +10,7 @@ import { takeScreenshot } from '../../../utils/utils';
   tag: 'mge-view',
   styleUrl: 'mge-view.css',
   shadow: true,
+  assetsDirs: ['assets']
 })
 export class MgeView {
 
@@ -385,21 +386,36 @@ export class MgeView {
 
       let _btnMenu = this._top.append("button")
             .attr("id", this.idView + "-t-menu-btn")
-            .attr("class", "fas fa-angle-double-down"),
-          _btnSaveScreen = this._top.append("button")
+        
+      _btnMenu.append('img')
+        .attr('src', getAssetPath('assets/images/double-arrow-down.svg'))
+        .attr('width', 15)
+        .attr('height', 15)
+
+      let _btnSaveScreen = this._top.append("button")
             .attr("id", this.idView + "-t-screenshot-btn")
-            .attr("class", "fas fa-camera");
+
+      _btnSaveScreen.append('img')
+        .attr('src', getAssetPath('assets/images/camera.svg'))
+        .attr('width', 15)
+        .attr('height', 15)
 
       _btnMenu.on("click", (event, d) => {
           let path = event.path || event.composedPath()
+
+          // retrieve the img element 
+          let clickedElem = path[0]
+          if (clickedElem.tagName === 'BUTTON')
+            clickedElem = clickedElem.children[0]
+
           if (this._filter.style.display == "none")
           {
               this._filter.style.display = "block";
-              path[0].className = "fas fa-angle-double-up";
+              clickedElem.src = getAssetPath('assets/images/double-arrow-up.svg')
           } 
           else
           {
-            path[0].className = "fas fa-angle-double-down";
+            clickedElem.src = getAssetPath('assets/images/double-arrow-down.svg')
             this._filter.style.display = "none";
           }
       })
@@ -472,13 +488,20 @@ export class MgeView {
               .style("width", 0)
               .text(this.titleView);
 
-      if (this.typeVis != 'mge-history' && this.idView != "chart-0")
-        this._top.append("button")
-              .attr("class", "fas fa-times")
+      if (this.typeVis != 'mge-history' && this.idView != "chart-0") {
+        let closeButton = this._top.append("button")
               .attr("id", this.idView + "-t-close-btn")
               .on("click", async (event, d) => {
                 await this._dashboard.closeView(this.element);
               });
+
+          closeButton.append('img')
+            .attr('src', getAssetPath('assets/images/times.svg'))
+            .attr('width', 15)
+            .attr('height', 15)
+              
+
+          }
 
   };
 
@@ -849,6 +872,7 @@ export class MgeView {
       this.cont = this.element.shadowRoot.querySelector("#" + this.idView + "-g");
       this.dragElement(this.mover);
       this.setResizable();
+
     }
 
 

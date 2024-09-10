@@ -174,7 +174,7 @@ export class MgeClustervis {
             _appendBars(data);
             _appendLinks();
             _appendNodeNames();
-            this._clusterVisPanel.updateClusterVisPanel()
+            if (this._clusterVisPanel) this._clusterVisPanel.updateClusterVisPanel()
         });
 
         var _appendRings = () => {

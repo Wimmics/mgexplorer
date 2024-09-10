@@ -1,3 +1,5 @@
+/* @import url('assets/fontawesome/css/all.css'); */
+
 :host {
 
     font-size: 1rem;
@@ -314,7 +316,3 @@ tr td:first-child {
   font-size: 1rem;
 }
 
-
-
-
-@import url('../../../assets/fontawesome/css/all.css');

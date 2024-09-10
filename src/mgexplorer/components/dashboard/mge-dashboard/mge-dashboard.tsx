@@ -1,4 +1,4 @@
-import { Component, Element, Host, Prop, h, Method, State} from '@stencil/core';
+import { Component, Element, Host, Prop, h, Method, getAssetPath} from '@stencil/core';
 import { select, selectAll } from 'd3-selection';
 
 import { drag } from 'd3-drag';
@@ -842,8 +842,13 @@ export class MgeDashboard {
                 <div class="contentDashboard" style={{"width":"100%", "height":"100%"}}>
                 
                 <div class="action-buttons-container" id='action-buttons'>
-                    <button id="captureButton" class="fas fa-camera" title="Take snapshot of dashboard"></button>
-                    <button id="annotationButton" class="far fa-sticky-note"  title="New annotation" style={{"display":"none"}}></button>
+                    <button id="captureButton" title="Take snapshot of dashboard">
+                        <img src={getAssetPath('assets/images/camera.svg')} width={20} height={20}></img>
+                    </button>
+                    
+                    <button id="annotationButton"  title="New annotation" style={{"display":"none"}}>
+                        <img src={getAssetPath('assets/images/sticky-note.svg')} width={20} height={20}></img>
+                    </button>
                 </div>
 
                     <div class="graph">
@@ -857,7 +862,8 @@ export class MgeDashboard {
                             "display": "none"
                         }}>
                             <p>Please hold on while we query the SPARQL endpoint.</p>
-                            <i class="fas fa-spinner fa-spin fa-2x" style={{"color": "rgb(31, 119, 180)"}}></i>
+                            {/* <i class="fas fa-spinner fa-spin fa-2x" style={{"color": "rgb(31, 119, 180)"}}></i> */}
+                            <img src={getAssetPath('assets/images/loading.svg')} width={40} height={40}></img>
                         </div>
                     </div>
                     <svg class="linktool">

@@ -1,4 +1,4 @@
-import { Component, Element, Host, Prop, h, Method, Watch} from '@stencil/core';
+import { Component, Element, Host, Prop, h, Method, getAssetPath} from '@stencil/core';
 import  { select, selectAll } from 'd3-selection'
 import {range} from "d3"
 import state from "../../../store"
@@ -656,7 +656,7 @@ export class MgeQuery {
                 <table class='query_buttons' style={{"width": "100%"}}>
                     <tr style={{"width": "100%", "text-align":"right"}}>
                         <td>
-                        <i class="fas fa-spinner fa-spin fa-2x loading" style={{display: "none"}}></i>
+                        <img src={getAssetPath("assets/images/loading.svg")} class="loading" width={30} height={30} style={{display: "none"}}></img>
                         <button type='button' class="btn btn-outline-secondary" id='clone' style={{"display":"none"}}>Clone</button>
                         <button type='button' class="btn btn-outline-secondary" id='clear-cache' disabled>Clear cache</button>
                         <button type='button' class="btn btn-outline-primary" id='run' disabled>Run</button>

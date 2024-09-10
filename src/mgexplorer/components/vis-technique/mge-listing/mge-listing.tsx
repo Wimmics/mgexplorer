@@ -1,4 +1,4 @@
-import { Component, Element, Host, Prop, h, Event, EventEmitter, Method } from '@stencil/core';
+import { Component, Element, Host, Prop, h, Event, EventEmitter, Method, getAssetPath } from '@stencil/core';
 // import { allPapersList, duoPapersList, clusterPapersList } from './process-data'
 import Model from 'model-js';
 import { sum, ascending, zoom } from 'd3'
@@ -14,6 +14,7 @@ import { subGraph } from '../../../../lib/mge-mappers'
     tag: 'mge-listing',
     styleUrl: 'mge-listing.css',
     shadow: false,
+    assetsDirs: ['assets']
 })
 export class MgeListing {
 
@@ -210,9 +211,10 @@ export class MgeListing {
             .on("mouseover", this._openToolTip.bind(this))
             .on("mouseout", this._closeToolTip.bind(this));
 
-        _helpContainer.append("i")
-            .attr("class", "fas fa-palette")
-            .style("font-size", "20px");
+        _helpContainer.append("img")
+            .attr('src', getAssetPath('assets/images/palette.svg'))
+            .attr('width', 15)
+            .attr('height', 15)
 
         this._helpTooltip = divTag.append("div")
             .attr("class", "helpTooltip")
@@ -318,7 +320,7 @@ export class MgeListing {
                     .attr("target", "_blank")
                     .classed('PL-icon', true)
                     .append("image")
-                    .attr('xlink:href', state.assetsPath + '/images/external-link.svg')
+                    .attr('xlink:href', getAssetPath(`./assets/images/external-link.svg`) )
                     .attr('width', 12)
                     .attr('height', 12)
                     .attr('transform', `translate(${x}, ${-2})`)

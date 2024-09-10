@@ -1,3 +1,5 @@
+/* @import url('../../assets/fontawesome/css/all.css'); */
+
 .post-it-note {
     padding: 0.2em;
     background: whitesmoke;
@@ -167,4 +169,3 @@ option {
 #checkboxes label:hover {
   background-color: #1e90ff;
 }
- @import url('../../../assets/fontawesome/css/all.css');

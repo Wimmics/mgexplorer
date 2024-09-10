@@ -129,7 +129,7 @@ const { state } = createStore({
 	_static: false,
 	_cache: true,
 
-	assetsPath: '/mgexplorer/assets',
+	//assetsPath: '/mgexplorer/assets',
 
 	getDataKey: () => `data-${state.indexQueryData}`
 });
