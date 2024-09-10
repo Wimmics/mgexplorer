@@ -34,6 +34,7 @@
             document.querySelector("#explorer").classList.add('active')
 
             let locals = <%- JSON.stringify(locals) %>;
+            console.log(locals)
     
             await customElements.whenDefined('mge-dashboard');
             let dashboard = d3.select('#viewArea')

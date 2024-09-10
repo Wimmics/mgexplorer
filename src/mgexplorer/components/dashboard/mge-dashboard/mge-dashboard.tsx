@@ -186,7 +186,8 @@ export class MgeDashboard {
         this.datasetName = state.getDataKey()
         
         // Store JSON formatted data to global variable of application 
-        state._data[this.datasetName] = await getResult(data, stylesheet)
+        let result = await getResult(data, stylesheet)
+        state._data[this.datasetName] = result.mge || result
         state._static = true
 
         state._stylesheet[this.datasetName] = stylesheet

@@ -126,7 +126,6 @@ app.get(prefix + '/dashboard', async function (req, res){
 })
 
 
-
 /**
  * This route is used by ldviz to save queries for exploration
  * req.body: {query (Query Object)}
