@@ -1,6 +1,6 @@
 {
   "name": "mgexplorer",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "Multidimensional Graph Explorer",
   "module": "dist/custom-elements/index.js",
   "es2015": "dist/esm/index.mjs",

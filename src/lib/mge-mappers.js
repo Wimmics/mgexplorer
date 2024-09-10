@@ -3,6 +3,7 @@
  *
  */
 
+import * as d3 from 'd3';
 
 //=========================== sort
 function sort() {

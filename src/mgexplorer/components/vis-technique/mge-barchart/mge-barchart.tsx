@@ -111,10 +111,13 @@ export class MgeBarchart {
         this._abscissaTitle = null
         this._abscissaBottomMargin = 70
         this._abscissaRightMargin = 40
-        this._yAxis = null
-        this._xAxis = null
-        this._x = null
-        this._y = null
+        
+        this._x = scaleBand().padding(0.2)
+        this._xAxis = axisBottom().scale(this._x)
+        
+        this._y = scaleLinear()
+        this._yAxis = axisLeft().scale(this._y).tickFormat(format("d"))
+
         this._bins = null
         this._documentTypes = null
         this._orderedDocumentArray = null
@@ -261,7 +264,7 @@ export class MgeBarchart {
 
         this._sort.exec(this._cfgIndexAttr.textBar);
         this._vOrder = this._sort.getVetOrder();
-        this.setupVersionWithYearAndPublications();
+        // this.setupVersionWithYearAndPublications();
 
     };
 
@@ -307,20 +310,10 @@ export class MgeBarchart {
 
     setupVersionWithYearAndPublications() {
 
-        this._x = scaleBand()
-            .rangeRound([0, this.model.box.width])
-            .padding(0.2)
-            .domain(Array.from(this._years))    // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
+        // this._x.rangeRound([0, this.model.box.width])
+        //     .domain(Array.from(this._years))    // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
 
-        this._xAxis = axisBottom()
-            .scale(this._x);
-
-        // Y axis: 
-        this._y = scaleLinear()
-
-        this._yAxis = axisLeft()
-            .scale(this._y)
-            .tickFormat(format("d"));
+        
 
         this._abscissaTitle = this._grpHistogram.append("text")
             .attr("y", 1)
@@ -408,6 +401,8 @@ export class MgeBarchart {
 
         this._grpHistogram = _grpChart.append("g").attr("class", "HistogramChart").attr("transform", "translate(30,20)");
 
+        this.setupVersionWithYearAndPublications();
+
         // _______________________
 
         // const dataTest = [{ price: "20.0" }, { price: "34.0" }, { price: "35.0" }, { price: "40.0" }, { price: "59.0" }, { price: "60.0" }, { price: "61.0" }, { price: "62.0" }, { price: "70.0" }, { price: "80.0" }, { price: "100.0" }];
@@ -468,7 +463,7 @@ export class MgeBarchart {
             (data, widthChart, heightChart) => {
                 
                 // Update abscissa
-                this._x.rangeRound([0, this.model.box.width * 0.90 - this._abscissaRightMargin]);
+                this._x.rangeRound([0, this.model.box.width * 0.90 - this._abscissaRightMargin]).domain(this._years);
                 this._xAxis.scale(this._x)
                 this._abscissa.attr("transform", "translate(0," + `${this.model.box.height - this._abscissaBottomMargin}` + ")")
                     .call(this._xAxis);
