@@ -89,7 +89,7 @@ export namespace Components {
         /**
           * This function is to set the data to the chart If no arguments, It will return the value of data
          */
-        "setData": (_: any, datasetName: any, secondNode: any, isFromEdge?: boolean, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>;
+        "setData": (_: any, datasetName: any, secondNode: any, source: any) => Promise<any>;
         "setIndexAttrBar": (_: any) => Promise<any>;
         /**
           * This function is required in all techniques It is called internally in conectChart
@@ -746,7 +746,7 @@ export namespace Components {
         /**
           * This function is to set the data to the listing papers chart If no arguments, It will return the value of data
          */
-        "setData": (_: any, datasetName: any, secondNode: any, isFromEdge?: boolean, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>;
+        "setData": (_: any, datasetName: any, secondNode: any, source: any, parentNode: any) => Promise<any>;
         /**
           * represents the width of the paper's list chart
          */
@@ -992,7 +992,7 @@ export namespace Components {
         /**
           * This function allows to create a new view from current view. After create a new view , it will be added to the dashboard with a generated title view: information on view to be created (from state)
          */
-        "_showChart": (node: any, parentId: any, component: any, isFromEdge?: boolean, secondNode?: any, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>;
+        "_showChart": (node: any, parentNode: any, component: any, secondNode: any, source: any) => Promise<any>;
         /**
           * Div that represents the header part of a view
          */

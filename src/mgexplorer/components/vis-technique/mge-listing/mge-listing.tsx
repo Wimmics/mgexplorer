@@ -100,23 +100,31 @@ export class MgeListing {
       * If no arguments, It will return the value of data
       */
     @Method()
-    async setData(_, datasetName, secondNode, isFromEdge = false, isFromCluster = false, isFromHC = false) {
+    async setData(_, datasetName, secondNode, source, parentNode) {
         if (!arguments.length)
             return this.model.data;
 
         
-        if (secondNode || isFromEdge) {
-            _ = this._subGraph.duoPapersList(_, secondNode, state._data[datasetName]);
-        } else if (isFromCluster) {
-            _ = this._subGraph.clusterPapersList(_, state._data[datasetName]);
-        } else if (isFromHC) {
-            _ = JSON.parse(JSON.stringify(_));
-            _ = _.root.data;
-        } else {
-            _ = this._subGraph.allPapersList(_, state._data[datasetName]);
-        }
+        if (secondNode || source === 'IC-bars') {
+            this.model.data = this._subGraph.duoPapersList(_, secondNode, state._data[datasetName]);
+        } else if (source === 'mge-clustervis') {
+            this.model.data = this._subGraph.clusterPapersList(_, state._data[datasetName]);
+        } else if (source === 'mge-barchart') {
         
-        this.model.data = _;
+            let parentNodeData = await parentNode.setData()
+            let firstNode = parentNodeData.root.data
+        
+            if (parentNodeData.secondNode)
+                this.model.data = this._subGraph.duoPapersList(firstNode, parentNodeData.secondNode, state._data[datasetName])
+            else 
+                this.model.data = this._subGraph.allPapersList(firstNode, state._data[datasetName]);
+            
+            // filter documents to keep only data for the selected type and date
+            this.model.data.root.data.documents = this.model.data.root.data.documents.filter(d => d.date === _.date && d.type.index === _.index )
+            
+        } else {
+            this.model.data = this._subGraph.allPapersList(_, state._data[datasetName]);
+        }
 
         this._itemTypes = this.model.data.root.data.documents.map(d => d.type)
         this._itemTypes = this._itemTypes.filter( (d,i) => this._itemTypes.findIndex(e => e.index === d.index) === i)

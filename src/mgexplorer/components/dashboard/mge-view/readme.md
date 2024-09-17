@@ -41,7 +41,7 @@ Type: `Promise<void>`
 
 
 
-### `_showChart(node: any, parentId: any, component: any, isFromEdge?: boolean, secondNode?: any, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>`
+### `_showChart(node: any, parentNode: any, component: any, secondNode: any, source: any) => Promise<any>`
 
 This function allows to create a new view from current view.
 After create a new view , it will be added to the dashboard with a generated title

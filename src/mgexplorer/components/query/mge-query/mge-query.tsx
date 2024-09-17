@@ -105,7 +105,7 @@ export class MgeQuery {
    */
   @Method()
   async  cloneQuery(){
-    let cloneView = await this._view._showChart(this.data, this.element.id, 'mge-query')
+    let cloneView = await this._view._showChart(this.data, this.element, 'mge-query')
     cloneView.node().componentOnReady().then(async () => {
           let chartNode = await cloneView.node().getChart();
           await chartNode.setClone();
@@ -178,7 +178,8 @@ export class MgeQuery {
           }
 
         } else {
-          select(this.element.querySelector('#values-container')).style.display = 'none'
+          select(this.element.querySelector('#values-container')).selectAll('.custom_value').remove()
+          select(this.element.querySelector('#values-container')).node().style.display = 'none'
         }
 
       } else {
@@ -526,7 +527,7 @@ export class MgeQuery {
     }
     
     await this._view.setDatasetName(key)
-    await this._view._showChart(data, this.element.id, 'mge-nodelink', false, null, false, false)
+    await this._view._showChart(data, this.element, 'mge-nodelink', false, null, false, false)
 
    
     if (!this.isInitial)

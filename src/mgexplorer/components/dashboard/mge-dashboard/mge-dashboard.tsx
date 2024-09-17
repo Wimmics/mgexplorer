@@ -185,11 +185,11 @@ export class MgeDashboard {
     async setData (data, stylesheet) {
         this.datasetName = state.getDataKey()
         
+        state._static = true
+
         // Store JSON formatted data to global variable of application 
         let result = await getResult(data, stylesheet)
         state._data[this.datasetName] = result.mge || result
-        state._static = true
-
         state._stylesheet[this.datasetName] = stylesheet
     }
     
@@ -635,7 +635,8 @@ export class MgeDashboard {
                 'line, rect, mge-view[id-view]:not([id-view="chart-0"]):not([id-view="chart-history"])'
             )
         ).remove()
-        this._treeCharts[0].children = []
+        if (this._treeCharts && this._treeCharts.length)
+            this._treeCharts[0].children = []
         this.refreshLinks()
     }
     
@@ -767,113 +768,119 @@ export class MgeDashboard {
     */
     @Method()
     async refreshLinks() {
+
         refreshLinksRec(this._treeCharts);
-        this._historyChart.node().componentOnReady().then(async () => {
-            
-            let viewChart = await this._historyChart.node().getChart()
-            if(typeof viewChart !== "undefined" )
-                await viewChart.setTree(this._treeCharts);})
-            
-            function refreshLinksRec(nodeTree) {
-                if (nodeTree != null) {
-                    processNode(nodeTree);
-                }
-                if (nodeTree.children !== undefined) {
-                    for (let i = 0; i < nodeTree.children.length; i++) {
-                        refreshLinksRec(nodeTree.children[i]);
-                    }
-                }
-            }
-            
-            function processNode(nodeTree) {
-                if (nodeTree.link != null) {
-                    if (nodeTree.link.visible) {
-                        if (nodeTree.hidden === true || (nodeTree.parentNode.hidden && !nodeTree.hidden)) {
-                            nodeTree.link.line.classed("DS-linkChartShow", false);
-                            nodeTree.link.line.classed("DS-linkChartHidden", true);
-                            // nodeTree.link.line.attr("marker-end", "url(#hidden)")
-                        } else {
-                            nodeTree.link.line.classed("DS-linkChartShow", true);
-                            nodeTree.link.line.classed("DS-linkChartHidden", false);
-                            // nodeTree.link.line.attr("marker-end", "url(#arrow" + nodeTree.id)
-                        }
-                        nodeTree.link.conect.style("display", null);
-                        nodeTree.link.line.style("display", null);
-                    } else {
-                        nodeTree.link.conect.style("display", "none");
-                        nodeTree.link.line.style("display", "none");
-                    }
-                }
-            }
-        };
         
-        componentDidRender(){
-            
-        }
-        
-        componentDidLoad(){
-            
-            this._dashboardArea.svg = select(this.element.shadowRoot.querySelector(".linktool"))
-                .attr("width", this._dashboardArea.width)
-                .attr("height", this._dashboardArea.height)
-                .style("top", 0)
-                .style("left", 0)
-                .style("right", 0)
-                .style("position", "absolute");
-
-            
-        }
-        
-        showLoading(){
-            select(this.element.shadowRoot.querySelector('.loading')).node().style.display = 'block'
-        }
-        
-        hideLoading(){
-            select(this.element.shadowRoot.querySelector('.loading')).node().style.display = 'none'
-        }
-        
-        showQueryTitle(title){
-            select('#vis-title').node().innerHTML += title
-        }
-        
-        render() {
-            return (
-                <Host>
-                <div class="contentDashboard" style={{"width":"100%", "height":"100%"}}>
+        if (this._historyChart) {
+            this._historyChart.node().componentOnReady().then(async () => {
                 
-                <div class="action-buttons-container" id='action-buttons'>
-                    <button id="captureButton" title="Take snapshot of dashboard">
-                        <img src={getAssetPath('assets/images/camera.svg')} width={20} height={20}></img>
-                    </button>
-                    
-                    <button id="annotationButton"  title="New annotation" style={{"display":"none"}}>
-                        <img src={getAssetPath('assets/images/sticky-note.svg')} width={20} height={20}></img>
-                    </button>
-                </div>
-
-                    <div class="graph">
-                        <div class='loading' style={{
-                            "position": "absolute",
-                            "padding": "10px",
-                            "left": "calc(50vw - 250px)",
-                            "top": "25vh",
-                            "width": "500px",
-                            "text-align": 'center',
-                            "display": "none"
-                        }}>
-                            <p>Please hold on while we query the SPARQL endpoint.</p>
-                            {/* <i class="fas fa-spinner fa-spin fa-2x" style={{"color": "rgb(31, 119, 180)"}}></i> */}
-                            <img src={getAssetPath('assets/images/loading.svg')} width={40} height={40}></img>
-                        </div>
-                    </div>
-                    <svg class="linktool">
-                        <defs>
-                        </defs>
-                    </svg>
-                </div>
-                </Host>
-            );
+                let viewChart = await this._historyChart.node().getChart()
+                if(typeof viewChart !== "undefined" )
+                    await viewChart.setTree(this._treeCharts);
+            })
         }
+            
+        function refreshLinksRec(nodeTree) {
+            if (nodeTree != null) {
+                processNode(nodeTree);
+            }
+            
+            if (nodeTree && nodeTree.children) {
+                for (let i = 0; i < nodeTree.children.length; i++) {
+                    refreshLinksRec(nodeTree.children[i]);
+                }
+            }
+        }
+        
+        function processNode(nodeTree) {
+            if (nodeTree.link != null) {
+                if (nodeTree.link.visible) {
+                    if (nodeTree.hidden === true || (nodeTree.parentNode.hidden && !nodeTree.hidden)) {
+                        nodeTree.link.line.classed("DS-linkChartShow", false);
+                        nodeTree.link.line.classed("DS-linkChartHidden", true);
+                        // nodeTree.link.line.attr("marker-end", "url(#hidden)")
+                    } else {
+                        nodeTree.link.line.classed("DS-linkChartShow", true);
+                        nodeTree.link.line.classed("DS-linkChartHidden", false);
+                        // nodeTree.link.line.attr("marker-end", "url(#arrow" + nodeTree.id)
+                    }
+                    nodeTree.link.conect.style("display", null);
+                    nodeTree.link.line.style("display", null);
+                } else {
+                    nodeTree.link.conect.style("display", "none");
+                    nodeTree.link.line.style("display", "none");
+                }
+            }
+        }
+    }
+        
+    componentDidRender(){
         
     }
+    
+    componentDidLoad(){
+        
+        this._dashboardArea.svg = select(this.element.shadowRoot.querySelector(".linktool"))
+            .attr("width", this._dashboardArea.width)
+            .attr("height", this._dashboardArea.height)
+            .style("top", 0)
+            .style("left", 0)
+            .style("right", 0)
+            .style("position", "absolute");
+
+        
+    }
+    
+    showLoading(){
+        select(this.element.shadowRoot.querySelector('.loading')).node().style.display = 'block'
+    }
+    
+    hideLoading(){
+        select(this.element.shadowRoot.querySelector('.loading')).node().style.display = 'none'
+    }
+    
+    showQueryTitle(title){
+        select('#vis-title').node().innerHTML += title
+    }
+    
+    render() {
+        return (
+            <Host>
+            <div class="contentDashboard" style={{"width":"100%", "height":"100%"}}>
+            
+            <div class="action-buttons-container" id='action-buttons'>
+                <button id="captureButton" title="Take snapshot of dashboard">
+                    <img src={getAssetPath('assets/images/camera.svg')} width={20} height={20}></img>
+                </button>
+                
+                <button id="annotationButton"  title="New annotation" style={{"display":"none"}}>
+                    <img src={getAssetPath('assets/images/sticky-note.svg')} width={20} height={20}></img>
+                </button>
+            </div>
+
+                <div class="graph">
+                    <div class='loading' style={{
+                        "position": "absolute",
+                        "padding": "10px",
+                        "left": "calc(50vw - 250px)",
+                        "top": "25vh",
+                        "width": "500px",
+                        "text-align": 'center',
+                        "display": "none"
+                    }}>
+                        <p>Please hold on while we query the SPARQL endpoint.</p>
+                        {/* <i class="fas fa-spinner fa-spin fa-2x" style={{"color": "rgb(31, 119, 180)"}}></i> */}
+                        <img src={getAssetPath('assets/images/loading.svg')} width={40} height={40}></img>
+                    </div>
+                </div>
+                <svg class="linktool">
+                    <defs>
+                    </defs>
+                </svg>
+            </div>
+            </Host>
+        );
+    }
+    
+}
     

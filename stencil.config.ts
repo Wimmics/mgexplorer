@@ -16,6 +16,13 @@ export const config: Config = {
     {
       type: 'dist',
       esmLoaderPath: '../loader',
+      copy: [
+        {
+          src: 'assets',
+          dest: 'assets',
+          warn: true,
+        }
+      ]
     },
     {
       type: 'dist-custom-elements-bundle',

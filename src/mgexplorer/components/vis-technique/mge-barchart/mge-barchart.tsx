@@ -210,23 +210,27 @@ export class MgeBarchart {
     * If no arguments, It will return the value of data
     */
     @Method()
-    async setData (_, datasetName, secondNode, isFromEdge=false, isFromCluster=false, isFromHC=false) {
+    async setData (_, datasetName, secondNode, source) {
         if (!arguments.length)
             return this.model.data;
 
-        if (!isFromEdge && !isFromCluster) {
+        if (!['mge-clustervis', 'IC-bars'].includes(source)) {
             this.model.data = this._subGraph.allPapersList(_, state._data[datasetName]);
-        } else if (isFromEdge) {
+        } else if (source === 'IC-bars') {
             this.model.data = this._subGraph.duoPapersList(_, secondNode, state._data[datasetName]);
-        } else if (isFromCluster) {
+            this.model.data.secondNode = secondNode
+        } else if (source === "mge-clustervis") {
             this.model.data = this._subGraph.clusterPapersList(_, state._data[datasetName]);
         }
 
+        
+
         this.model.stylesheet = state._stylesheet[datasetName]
+       
         if (this.model.stylesheet) {
             let barchartStyle = this.model.stylesheet.barchart
             if (barchartStyle && barchartStyle.x) {
-                this.xTitle = barchartStyle.x.label
+                this.xTitle = barchartStyle.x.title
             }
         }
 
@@ -309,10 +313,6 @@ export class MgeBarchart {
     };
 
     setupVersionWithYearAndPublications() {
-
-        // this._x.rangeRound([0, this.model.box.width])
-        //     .domain(Array.from(this._years))    // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
-
         
 
         this._abscissaTitle = this._grpHistogram.append("text")
@@ -443,7 +443,6 @@ export class MgeBarchart {
             let maxValue = 150
             this._maxHeightBar = Math.floor(widthChart * pMaxHeightBar);
             this.model.barScale = scaleLinear().range([0, this._maxHeightBar]).domain([0, maxValue]);
-            
         });
 
         //---------------------
@@ -468,6 +467,8 @@ export class MgeBarchart {
                 this._xAxis.scale(this._x)
                 this._abscissa.attr("transform", "translate(0," + `${this.model.box.height - this._abscissaBottomMargin}` + ")")
                     .call(this._xAxis);
+                this._abscissaTitle.text(this.xTitle);
+                
 
                 // Update ordinate
                 let docsCount = {}

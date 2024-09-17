@@ -285,6 +285,7 @@ function subGraph() {
     /*---------------------------------
         * Node and its adjacent Iris
         */
+
     obj.allPapersList = function (normalNode, graphData) {
         let result = getPaperListDataModel(normalNode, graphData.nodes, false)
 
@@ -324,7 +325,6 @@ function subGraph() {
 
         let result = getPaperListDataModel(sourceNode, graphData.nodes, true)
 
-        
         sourceNode.cluster.forEach(node => {
             if (node.idOrig !== sourceNode.idOrig) 
                 result.children.data.push(getPaperListNode(node))
@@ -332,10 +332,8 @@ function subGraph() {
 
         let idNodes = sourceNode.cluster.map(d => d.idOrig)
         idNodes.push(sourceNode.idOrig)
-        console.log(graphData.items)
-        console.log(sourceNode, idNodes)
+      
         result.root.data.documents = graphData.items.filter(d => d.authors.some(a => a.id === sourceNode.idOrig) && idNodes.every(a => d.authors.some(x => x.id === a)))
-        //d.authors.every(a => idNodes.includes(a.id)))
 
         result.root.data.documents.forEach((doc) => {
             doc.authors.forEach(author => {

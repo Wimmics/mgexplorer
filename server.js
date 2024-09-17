@@ -125,6 +125,66 @@ app.get(prefix + '/dashboard', async function (req, res){
     res.render("index", result);
 })
 
+app.get(prefix + '/dashboard/test', async function(req, res) {
+    let result = fs.readFileSync("data/apps/nlp-explorer/matching_results.json")
+    result = JSON.parse(result)
+
+    res.render("index", { 
+        data: result, 
+        stylesheet: {
+            "appli": {
+                "name": "Datasets Relationship",
+                "debug": true
+            },
+            "node": {
+                "radius": {
+                    "variable": "qtItems",
+                    "scale": "linear"
+                },
+                "default": {
+                    "color": "steelblue"
+                },
+                "mix": {
+                    "color": "yellow",
+                    "active": true
+                },
+                "member": {
+                    "color": "purple"
+                },
+                "other": {
+                    "color": "green"
+                },
+                "fst": {
+                    "color": "lightgreen",
+                    "priority": 1
+                },
+                "snd": {
+                    "color": "orange",
+                    "priority": 2
+                },
+                "rst": {
+                    "color": "purple",
+                    "priority": 3
+                }
+            },
+            "barchart": {
+                "x": {
+                    "title": "Last Modified"
+                }
+            },
+            "edge": {
+                "color": "green"
+            },
+            "services": [
+                {
+                    "label": "See it on HuggingFace",
+                    "url": "https://huggingface.co/datasets/"
+                }
+            ]
+        } 
+    })
+})
+
 
 /**
  * This route is used by ldviz to save queries for exploration

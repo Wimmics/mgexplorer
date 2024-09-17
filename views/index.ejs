@@ -48,7 +48,11 @@
                 
                 node.setAPIRoutes(locals.routes)
 
-                if (locals.app) { // static applications, such as i3s, sparks, and hceres data
+                if (locals.data) { // for testing only
+                    node.setData(locals.data, locals.stylesheet)
+                    node.disableInitialQueryPanel()
+                }
+                else if (locals.app) { // static applications, such as i3s, sparks, and hceres data
                     node.setFilenames(locals.filenames)
                 } else if (Object.keys(locals.queryParams).length) { // dynamic query, such as via ldviz
                     let data = {

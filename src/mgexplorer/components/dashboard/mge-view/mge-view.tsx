@@ -645,17 +645,19 @@ export class MgeView {
     let key = Object.keys(this._classViewMapping).find(key => clickedElem.node().classList.contains(key))
     let menuid = this._classViewMapping[key]
     
+    let data = clickedElem.datum()
     if (menuid) {
         switch(key){
             case 'IC-bars':
-                clickedElem = select(clickedElem.node().parentNode.parentNode)
+                data = select(clickedElem.node().parentNode.parentNode).datum()
                 break;
             case 'HC-bars':
-                clickedElem = select(clickedElem.node().parentNode)
-                break;
+              let parentData = select(clickedElem.node().parentNode).datum()
+              data.date = parentData.year 
+              break;
         }
 
-        this.execContextMenu(menuid, popupDiv, clickedElem.datum(), viewDiv.node(), key)
+        this.execContextMenu(menuid, popupDiv, data, viewDiv.node(), key)
     }
   }
 
@@ -689,9 +691,9 @@ export class MgeView {
                 selectAll(this.element.shadowRoot.querySelectorAll(".DS-popup")).remove()
 
                 if (target === 'NE-edge') 
-                d.fActionEdge(menuid, d.key, data, parentNode, target)
+                  d.fActionEdge(menuid, d.key, data, parentNode, target)
                 else 
-                d.fActionNode(menuid, d, data, parentNode, target)
+                  d.fActionNode(menuid, d, data, parentNode, target)
             })
             .append("label")
             .text(function (d) { return d.label; });
@@ -721,11 +723,11 @@ export class MgeView {
             })
 
             if (key === 'mge-nodelink') {
-                let query = state._queries[this.datasetName]
-                let redirectServices = query && query.stylesheet && query.stylesheet.services != undefined;
+                let stylesheet = state._stylesheet[this.datasetName]
+                let redirectServices = stylesheet && stylesheet.services != undefined;
                 
                 if (redirectServices) {
-                    query.stylesheet.services.forEach(d => {
+                    stylesheet.services.forEach(d => {
                         values.push({
                             key: 'service',
                             label: d.label, 
@@ -740,12 +742,12 @@ export class MgeView {
         })
     }
 
-    async _fActionNode(from, d, node, parentNode, target) {
+    async _fActionNode(source, d, node, parentNode, target) {
 
         const launchService = () => {
-            let query = state._queries[this.datasetName]
+            let stylesheet = state._stylesheet[this.datasetName]
         
-            const baseUrl = query.stylesheet.services.filter(e => e.label == d.label)[0].url;
+            const baseUrl = stylesheet.services.filter(e => e.label == d.label)[0].url;
             
             if (d.label === 'ACTA' && !node.pmid) {
                 alert("ACTA is only available for scholarly articles with an associated PubMed ID.")
@@ -758,24 +760,23 @@ export class MgeView {
             window.open(url); 
         }
 
-        switch(from) {
+        //_shoxChart parameters in order: node, parentId, component, secondNode=null, source [component / element]
+        switch(source) {
             case 'mge-iris':
+             
                 let vOrder = await parentNode.getVOrder()
+                
                 let targetNode = await parentNode.dataVisToNode(vOrder[node.indexData])
                 if (target === "IC-node") {
-                    this._showChart(targetNode, parentNode.id, d.key, false, undefined)
+                    this._showChart(targetNode, parentNode, d.key, null, target)
                 } else { // if IC-bars
                     let sourceNode = await parentNode.getSourceObject()
-                    this._showChart(sourceNode, parentNode.id, d.key, true, targetNode)
+                    this._showChart(sourceNode, parentNode, d.key, targetNode, target)
                 }
                 break;
             default:
                 if (d.key === 'service') launchService()
-
-                else if (['mge-clustervis'].includes(from) && ['mge-barchart', 'mge-listing'].includes(d.key))
-                    this._showChart(node, parentNode.id, d.key, false, undefined, true)
-
-                else this._showChart(node, parentNode.id, d.key, false, undefined)
+                else this._showChart(node, parentNode, d.key, undefined, source)
         }
     }
 
@@ -790,7 +791,7 @@ export class MgeView {
    * view: information on view to be created (from state)
    */
   @Method()
-    async _showChart(node, parentId, component, isFromEdge=false, secondNode=null, isFromCluster=false, isFromHC=false) {
+    async _showChart(node, parentNode, component, secondNode=null, source) {
 
         let chartNode, viewChild, link, convertData;
         var parentPosition = await this.getPosition()
@@ -806,7 +807,7 @@ export class MgeView {
 
         chartNode = await _viewChild.node().getChart()
         
-        await chartNode.setData(node, this.datasetName, secondNode, isFromEdge, isFromCluster, isFromHC)
+        await chartNode.setData(node, this.datasetName, secondNode, source, parentNode)
 
         convertData = await chartNode.setData()
         state.savedData = convertData;
@@ -814,24 +815,36 @@ export class MgeView {
 
         let title = state.views[component].title(component === 'mge-query' ? 'Follow Up' : null) 
         
-        if (component != 'mge-nodelink') {
-        if (secondNode) {
-            title = `${title} (${node.labels[1]} and ${secondNode.labels[1]})`
-        } else if (node) {
-            if (node.labels) 
-            title = `${title} (${node.labels[1]})`
-            else if (node.label) {
-            title = `${title} (${node.label})`
-            }
+        if (component === 'mge-nodelink') {
+          let stylesheet = state._stylesheet[this.datasetName]
+          title = 'Graph View'
+          if (stylesheet) title += `: ${stylesheet.appli.name}`
+        } else {
+          if (parentNode && source == "mge-barchart") {
+            let parentData = await parentNode.setData() 
+          
+            title = `${title} (${parentData.root.data.labels[1]}` 
+            if (parentData.secondNode) 
+              title += ` and ${parentData.secondNode.labels[1]}`
+            title += ` - ${node.label} - ${node.date})`
+          }
+          else if (secondNode) {
+              title = `${title} (${node.labels[1]} and ${secondNode.labels[1]})`
+          } else if (node) {
+              if (node.labels) 
+                title = `${title} (${node.labels[1]})`
+              else if (node.label) {
+                title = `${title} (${node.label})`
+              }
+          }
         }
-        } 
         
         await viewChild.setTitle(title)
 
         link = await this._dashboard._addLink(this.element, viewChild)
-
-        await this._dashboard.addChart(parentId, {
-                id: childId, title: title, typeChart: component.component, hidden: false,
+        
+        await this._dashboard.addChart(parentNode.id, {
+                id: childId, title: title, typeChart: component, hidden: false,
                 x: viewChild.x, y: viewChild.y, view: viewChild, link: link
             })
 

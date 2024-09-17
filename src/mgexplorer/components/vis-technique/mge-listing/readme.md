@@ -54,7 +54,7 @@ Type: `Promise<any>`
 
 
 
-### `setData(_: any, datasetName: any, secondNode: any, isFromEdge?: boolean, isFromCluster?: boolean, isFromHC?: boolean) => Promise<any>`
+### `setData(_: any, datasetName: any, secondNode: any, source: any, parentNode: any) => Promise<any>`
 
 This function is to set the data to the listing papers chart
 If no arguments, It will return the value of data
