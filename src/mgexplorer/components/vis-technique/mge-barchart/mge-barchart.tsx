@@ -2,7 +2,7 @@ import { Component, Element, Host, Prop, h, Method, getAssetPath} from '@stencil
 import { select } from 'd3-selection';
 // import { zoom } from 'd3';
 // import {allPapersList, duoPapersList, clusterPapersList, sort} from './process-data'
-import { zoom, svg, axisBottom, axisLeft, format, max } from "d3";
+import { zoom, svg, axisBottom, axisLeft, format, max, min } from "d3";
 import { scaleLinear, scaleBand, scaleOrdinal } from 'd3-scale';
 import { schemeCategory10  } from 'd3-scale-chromatic'
 import state from "../../../store"
@@ -486,7 +486,7 @@ export class MgeBarchart {
 
                 this._y.range([`${this.model.box.height - this._abscissaBottomMargin}`, 0]);
 
-                this._yAxis.scale(this._y).ticks(max(Object.values(docsCount)))
+                this._yAxis.scale(this._y).ticks(Math.min(max(Object.values(docsCount)), 10))
 
                 this._ordinate.call(this._yAxis);
 

@@ -1,6 +1,6 @@
 {
   "name": "mgexplorer",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Multidimensional Graph Explorer",
   "module": "dist/custom-elements/index.js",
   "es2015": "dist/esm/index.mjs",
@@ -55,7 +55,10 @@
     "rollup-plugin-node-polyfills": "^0.2.1",
     "typescript": "^5.5.4"
   },
-  "exports": "./dist/esm/mgexplorer.js",
+  "exports": {
+    "./dist": "./dist/esm/mgexplorerjs",
+    "./loader": "./loader/index.js"
+  },
   "unpkg": "dist/mgexplorer/mgexplorer.esm.js",
   "main": "dist/index.cjs.js"
 }
