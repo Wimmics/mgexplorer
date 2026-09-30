@@ -34,10 +34,11 @@ export const config: Config = {
       type: 'www',
       serviceWorker: null, // disable service workers
       baseUrl: 'http://localhost:8040',
+      dir: 'build',
       copy: [
         {
           src: 'assets',
-          dest: 'build/assets',
+          dest: 'assets',
           warn: true,
         }
       ]

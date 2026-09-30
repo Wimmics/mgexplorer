@@ -1,11 +1,4 @@
-/**
- * LinkedDataViz
- * Node proxy server
- * Receive query from HTML page, send query to SPARQL endpoint, apply transformation,
- *
- * Yun Tian - Olivier Corby - Marco Winckler - 2019-2020
- * Minh nhat Do - Aline Menin - Maroua Tikat - 2020-2022
-**/
+require('dotenv').config(); // this loads the .env variables
 
 const fs = require('fs');
 const express = require('express');
@@ -289,24 +282,22 @@ app.post(prefix + '/sparql', async function (req, res) {
 })
 
 
+// Start HTTP
+app.listen(process.env.PORT_HTTP, () => {
+    console.log(`✅ HTTP Server started on port ${process.env.PORT_HTTP}`);
+});
 
-
-
-const port = 8035 // verify the availability of this port on the server
-const portHTTPS = 8036
-
-app.listen(port, async () => { console.log(`HTTP Server started at port ${port}.`) })
-
+// Start HTTPS
 try {
-    let folderpath = '/etc/httpd/certificate/exp_20250808/'
-    var privateKey = fs.readFileSync( folderpath + 'dataviz_i3s_unice_fr.key' );
-    var certificate = fs.readFileSync( folderpath + 'dataviz_i3s_unice_fr_cert.crt' );
-    var ca = fs.readFileSync( folderpath + 'dataviz_i3s_unice_fr_AC.cer' );
-    var options = {key: privateKey, cert: certificate, ca: ca};
-    https.createServer( options, function(req,res)
-    {
-        app.handle( req, res );
-    } ).listen( portHTTPS, async () => { console.log(`HTTPS Server started at port ${portHTTPS}.`) } );
-} catch(e) {
-    console.log("Could not start HTTPS server")
+    const certPath = process.env.CERT_FOLDER;
+    const options = {
+        key: fs.readFileSync(path.join(certPath, process.env.CERT_KEY)),
+        cert: fs.readFileSync(path.join(certPath, process.env.CERT_CERT)),
+    };
+
+    https.createServer(options, app).listen(process.env.PORT_HTTPS, () => {
+        console.log(`✅ HTTPS Server started on port ${process.env.PORT_HTTPS}`);
+    });
+} catch (e) {
+    console.log("⚠️ Could not start HTTPS server:", e.message);
 }
