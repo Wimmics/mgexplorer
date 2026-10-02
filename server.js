@@ -60,8 +60,10 @@ app.use(prefix + '/lib/', express.static(path.join(__dirname, 'src/lib')))
 app.use(prefix + '/images/', express.static(path.join(__dirname, 'src/images')))
 // app.use(prefix + '/js/', express.static(path.join(__dirname, 'src/query/js')))
 app.use(prefix + '/css/', express.static(path.join(__dirname, 'src/css')))
-app.use(prefix + '/build/', express.static(path.join(__dirname, 'www/build')));
-app.use(prefix + '/assets/', express.static(path.join(__dirname, 'www/assets')));
+// Stencil www output dir is 'build' (see stencil.config.ts); getAssetPath() resolves under <prefix>/build/assets
+app.use(prefix + '/build/assets/', express.static(path.join(__dirname, 'build/assets')));
+app.use(prefix + '/build/', express.static(path.join(__dirname, 'build/build')));
+app.use(prefix + '/assets/', express.static(path.join(__dirname, 'build/assets')));
 
 ////////////// login routes ///////////////////////////
 // TODO: review the login routes once the unified authentification system is in place
